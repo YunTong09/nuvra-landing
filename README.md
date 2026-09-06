@@ -1,4 +1,8 @@
-# Company Landing Page
+# Voltix_intern
+
+One-month internship at Voltix.
+
+## Task 1 — Company Landing Page
 
 A responsive company landing page built for Task 1 of a Full Stack Developer internship. **Nuvra** is a fictional software studio with a black identity with green, blue, and purple gradient accents, an original CSS architecture illustration, and concise service content.
 
