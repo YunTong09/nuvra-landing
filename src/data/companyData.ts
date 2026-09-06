@@ -1,4 +1,5 @@
 export type NavigationItem = { label: string; href: string };
+
 export const navigation: NavigationItem[] = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
@@ -6,69 +7,62 @@ export const navigation: NavigationItem[] = [
   { label: "Why Us", href: "#why-us" },
   { label: "Contact", href: "#contact" },
 ];
-export type IconName =
-  "code" | "cloud" | "design" | "layers" | "arrow" | "check";
+
+export type IconName = "code" | "cloud" | "design" | "layers";
 export type Service = {
-  number: string;
   icon: IconName;
   title: string;
   description: string;
-  detail: string;
 };
+
 export const services: Service[] = [
   {
-    number: "01",
     icon: "code",
-    title: "Web development",
+    title: "Web Development",
     description:
-      "Fast, accessible web applications that turn complex requirements into effortless experiences.",
-    detail: "Built for the way you work",
+      "Responsive websites and web applications.",
   },
   {
-    number: "02",
     icon: "cloud",
-    title: "Cloud solutions",
+    title: "Cloud Solutions",
     description:
-      "Practical cloud architecture that keeps your business connected and ready for what comes next.",
-    detail: "Room to grow, by design",
+      "Cloud setup and migration for your business.",
   },
   {
-    number: "03",
     icon: "design",
-    title: "UI/UX design",
+    title: "UI/UX Design",
     description:
-      "Thoughtful digital experiences shaped around real people, clear journeys, and your business goals.",
-    detail: "Clarity in every interaction",
+      "Simple, easy-to-use interfaces.",
   },
   {
-    number: "04",
     icon: "layers",
-    title: "Digital transformation",
+    title: "Digital Transformation",
     description:
-      "Connect your tools, simplify everyday processes, and get more from the technology you already use.",
-    detail: "Less friction. More progress.",
+      "Connected tools and fewer repetitive tasks.",
   },
 ];
+
 export const benefits = [
   {
-    title: "Your goals, our starting point",
+    title: "Clear communication",
     description:
-      "We ask the right questions before writing the first line of code. Every decision connects back to your business.",
+      "Regular updates and clear explanations.",
   },
   {
-    title: "Built well. Built to last.",
+    title: "Reliable development",
     description:
-      "Clean code, thoughtful testing, and security-conscious development make your next chapter easier.",
+      "Maintainable code and careful testing.",
   },
   {
-    title: "A team you can talk to",
+    title: "Built around your goals",
     description:
-      "Direct communication, regular demos, and clear next steps. You always know where your project stands.",
+      "Practical solutions for your business needs.",
   },
 ];
+
 export const statistics = [
-  { value: "35+", label: "Projects delivered" },
+  { value: "35+", label: "Projects completed" },
   { value: "18", label: "Businesses supported" },
-  { value: "12+", label: "Years of combined experience" },
-  { value: "5", label: "Countries connected" },
+  { value: "12+", label: "Years combined experience" },
+  { value: "5", label: "Countries" },
 ];

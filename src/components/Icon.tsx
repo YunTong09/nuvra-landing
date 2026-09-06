@@ -1,11 +1,5 @@
 import type { IconName } from "../data/companyData";
-export function Icon({
-  name,
-  className = "",
-}: {
-  name: IconName;
-  className?: string;
-}) {
+export function Icon({ name }: { name: IconName }) {
   const paths: Record<IconName, React.ReactNode> = {
     code: (
       <>
@@ -29,20 +23,9 @@ export function Icon({
         <path d="m12 3 10 5-10 5L2 8 12 3Zm-10 9 10 5 10-5M2 16l10 5 10-5" />
       </>
     ),
-    arrow: (
-      <>
-        <path d="M4 12h16m-6-6 6 6-6 6" />
-      </>
-    ),
-    check: (
-      <>
-        <path d="m5 12 4 4L19 6" />
-      </>
-    ),
   };
   return (
     <svg
-      className={className}
       width="24"
       height="24"
       viewBox="0 0 24 24"

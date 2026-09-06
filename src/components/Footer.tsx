@@ -10,9 +10,9 @@ export function Footer() {
               <Brand />
             </a>
             <p>
-              Thoughtful technology.
+              Websites and software
               <br />
-              Lasting possibilities.
+              for growing businesses.
             </p>
           </div>
           <nav aria-label="Footer navigation">
@@ -25,11 +25,9 @@ export function Footer() {
               ))}
           </nav>
           <div className="footer-contact">
-            <span>HAVE SOMETHING IN MIND?</span>
-            <a href="#contact">
-              hello@nuvra.example <span aria-hidden="true">↗</span>
-            </a>
-            <small>Illustrative contact address</small>
+            <span>CONTACT</span>
+            <span>hello@nuvra.example</span>
+            <small>Placeholder email address</small>
           </div>
         </div>
         <div className="footer-bottom">

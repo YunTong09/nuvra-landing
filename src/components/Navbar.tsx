@@ -1,37 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { navigation } from "../data/companyData";
-import { Brand, Icon } from "./Icon";
+import { Brand } from "./Icon";
+
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState("#home");
-  const toggle = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries)
-          if (entry.isIntersecting) setActive(`#${entry.target.id}`);
-      },
-      { rootMargin: "-15% 0px -60% 0px", threshold: 0 },
-    );
-    navigation.forEach((item) => {
-      const section = document.querySelector(item.href);
-      if (section) observer.observe(section);
-    });
-    const media = window.matchMedia("(min-width: 769px)");
-    const close = () => setOpen(false);
-    media.addEventListener("change", close);
-    return () => {
-      observer.disconnect();
-      media.removeEventListener("change", close);
-    };
-  }, []);
+  // Return keyboard focus to the menu button when Escape closes the menu.
+  const menuButton = useRef<HTMLButtonElement>(null);
+
   return (
     <header
       className="site-header"
       onKeyDown={(event) => {
         if (event.key === "Escape" && open) {
           setOpen(false);
-          toggle.current?.focus();
+          menuButton.current?.focus();
         }
       }}
     >
@@ -40,14 +22,13 @@ export function Navbar() {
           <Brand />
         </a>
         <button
-          ref={toggle}
+          ref={menuButton}
           className="menu-toggle"
           aria-expanded={open}
           aria-controls="main-navigation"
-          aria-label={open ? "Close navigation" : "Open navigation"}
           onClick={() => setOpen(!open)}
         >
-          <span /> <span /> <span />
+          {open ? "Close" : "Menu"}
         </button>
         <nav
           id="main-navigation"
@@ -55,12 +36,7 @@ export function Navbar() {
           aria-label="Main navigation"
         >
           {navigation.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              aria-current={active === item.href ? "location" : undefined}
-              onClick={() => setOpen(false)}
-            >
+            <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
               {item.label}
             </a>
           ))}
@@ -69,7 +45,7 @@ export function Navbar() {
             href="#contact"
             onClick={() => setOpen(false)}
           >
-            Let’s talk <Icon name="arrow" />
+            Contact us
           </a>
         </nav>
       </div>
