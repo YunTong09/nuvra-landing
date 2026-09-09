@@ -307,6 +307,77 @@ p {
 .contact-content > p:not(.section-label) {
   margin: 18px 0 24px;
 }
+.contact-form {
+  max-width: 760px;
+  margin: 32px auto 0;
+  padding: 32px;
+  background: var(--bg-dark);
+  border: 1px solid #293133;
+  border-radius: 12px;
+  text-align: left;
+  box-shadow: 0 18px 40px rgba(12, 15, 16, 0.12);
+}
+.contact-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.contact-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-light);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.contact-message {
+  grid-column: 1 / -1;
+}
+.contact-fields input,
+.contact-fields textarea {
+  width: 100%;
+  border: 1px solid #465154;
+  border-radius: 6px;
+  padding: 12px 14px;
+  background: #161c1e;
+  color: var(--text-light);
+  font: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.contact-fields textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+.contact-fields input::placeholder,
+.contact-fields textarea::placeholder {
+  color: var(--text-muted-light);
+}
+.contact-fields input:focus,
+.contact-fields textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(120, 223, 181, 0.16);
+}
+.contact-submit {
+  width: 100%;
+  margin-top: 24px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent-gradient);
+  color: var(--text-dark);
+  font-weight: 700;
+  transition: opacity 0.2s;
+}
+.contact-submit:hover {
+  opacity: 0.85;
+}
+.contact-form [role="status"] {
+  margin-top: 16px;
+  color: var(--accent);
+  text-align: center;
+}
 .contact-content small {
   display: block;
   margin-top: 18px;
@@ -441,6 +512,9 @@ p {
     grid-template-columns: repeat(2, 1fr);
     gap: 32px 20px;
   }
+  .contact-form {
+    padding: 24px;
+  }
 }
 
 /* Narrow phones: one service per row. */
@@ -466,6 +540,12 @@ p {
   }
   .stats-grid dt {
     font-size: 0.875rem;
+  }
+  .contact-fields {
+    grid-template-columns: 1fr;
+  }
+  .contact-message {
+    grid-column: auto;
   }
 }
 

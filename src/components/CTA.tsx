@@ -49,20 +49,30 @@ export function CTA() {
         <p className="section-label">CONTACT</p>
         <h2>Have a project in mind?</h2>
         <p>Get in touch to discuss your project.</p>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="contact-name">Name</label>
-          <input id="contact-name" name="name" type="text" required />
+        <form className="contact-form" onSubmit={handleSubmit}>
+          <div className="contact-fields">
+            <label htmlFor="contact-name">
+              Name
+              <input id="contact-name" name="name" type="text" required />
+            </label>
 
-          <label htmlFor="contact-email">Email</label>
-          <input id="contact-email" name="email" type="email" required />
+            <label htmlFor="contact-email">
+              Email
+              <input id="contact-email" name="email" type="email" required />
+            </label>
 
-          <label htmlFor="contact-subject">Subject</label>
-          <input id="contact-subject" name="subject" type="text" required />
+            <label htmlFor="contact-subject">
+              Subject
+              <input id="contact-subject" name="subject" type="text" required />
+            </label>
 
-          <label htmlFor="contact-message">Message</label>
-          <textarea id="contact-message" name="message" rows={4} required></textarea>
+            <label className="contact-message" htmlFor="contact-message">
+              Message
+              <textarea id="contact-message" name="message" rows={4} required></textarea>
+            </label>
+          </div>
 
-          <button type="submit">Send inquiry</button>
+          <button className="contact-submit" type="submit">Send inquiry</button>
           {statusMessage && <p role="status">{statusMessage}</p>}
         </form>
       </div>
