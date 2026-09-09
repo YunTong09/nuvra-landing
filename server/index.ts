@@ -32,6 +32,10 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.send("Voltix backend is running");
+});
+
 app.post("/api/contact", (req, res) => {
     const {name, email, subject, message} = req.body ?? {};
 
