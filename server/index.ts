@@ -16,7 +16,10 @@ database.exec(`
 `);
 
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+    res.header(
+        "Access-Control-Allow-Origin",
+        "https://your-vercel-site.vercel.app",
+    );
     res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
 
@@ -78,6 +81,9 @@ app.post("/api/contact", (req, res) => {
     }
 });
 
-app.listen(3001, () => {
-    console.log("Backend running at http://localhost:3001");
+
+const port = process.env.PORT || 3001;
+
+app.listen(port, () => {
+    console.log(`Backend running on port ${port}`);
 });

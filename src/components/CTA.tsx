@@ -17,7 +17,7 @@ export function CTA() {
     };
 
     try {
-      const response = await fetch("http://localhost:3001/api/contact", {
+      const response = await fetch("https://voltix-api.onrender.com/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
