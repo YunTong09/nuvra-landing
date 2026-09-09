@@ -7,7 +7,8 @@ export function CTA() {
     event.preventDefault();
     setStatusMessage("");
 
-    const fields = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const fields = new FormData(form);
 
     const inquiry = {
       name: fields.get("name"),
@@ -32,7 +33,7 @@ export function CTA() {
       }
 
       setStatusMessage(result.message);
-      event.currentTarget.reset();
+      form.reset();
     } catch (error) {
       setStatusMessage(
         error instanceof Error
