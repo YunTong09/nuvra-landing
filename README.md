@@ -1,10 +1,10 @@
-# Voltix_intern
+# Voltix Internship Project
 
-One-month internship at Voltix.
+Responsive landing page for **nuvra.**, built with React, TypeScript, Vite, Express, and SQLite.
 
-## Task 1 — Company Landing Page
+## Task 2 - Contact and Inquiry System
 
-A responsive landing page for **nuvra.**, a fictional software company. Built for a Full Stack Developer internship using React, TypeScript, Vite, and CSS. The page uses a dark header and hero, light content sections, and a green-to-blue gradient accent.
+Visitors can submit an inquiry with Name, Email, Subject, and Message. The frontend sends the data to Express, the backend validates it, and valid inquiries are stored in SQLite.
 
 ## Getting started
 
@@ -15,6 +15,46 @@ npm install
 npm run dev
 ```
 
+Start the backend in a second terminal:
+
+```bash
+npm run server
+```
+
+The frontend runs at `http://localhost:5173` and the backend runs at `http://localhost:3001`.
+
+## Contact API
+
+The endpoint is:
+
+```text
+POST /api/contact
+```
+
+Example request:
+
+```bash
+curl -i -X POST http://localhost:3001/api/contact \
+	-H "Content-Type: application/json" \
+	-d '{"name":"Test User","email":"test@example.com","subject":"Test","message":"Hello"}'
+```
+
+Valid requests return HTTP `201`. Empty fields or invalid email addresses return HTTP `400` with an error message.
+
+## Database
+
+Valid inquiries are stored in `server/voltix.db` in the `inquiries` table. The table stores the name, email, subject, message, and creation time.
+
+To inspect the local database:
+
+```bash
+node --input-type=module -e '
+import Database from "better-sqlite3";
+const db = new Database("server/voltix.db");
+console.table(db.prepare("SELECT * FROM inquiries ORDER BY id DESC").all());
+'
+```
+
 ## Checks and production build
 
 ```bash
@@ -23,37 +63,27 @@ npm run build
 npm run preview
 ```
 
-`build` checks TypeScript and creates the production files in `dist`. `preview` serves that build locally.
+`build` checks TypeScript and creates the production frontend files in `dist`.
 
-## How the components work
+## Deployment
 
-`src/App.tsx` puts the existing page sections together in order:
+- Frontend: Vercel
+- Backend: Render
+- Backend URL: `https://nuvra-landing.onrender.com`
+- API URL: `https://nuvra-landing.onrender.com/api/contact`
 
-- `Navbar.tsx` displays links and uses `useState` to open or close the mobile menu. A small `useRef` lets Escape return keyboard focus to the menu button.
-- `Hero.tsx` contains a headline, a short description, and links to Contact and Services. It uses a simple single-column layout.
-- `About.tsx` explains the company and its approach.
-- `Services.tsx` maps service data into four reusable `ServiceCard` components. Each card receives one service through props.
-- `Benefits.tsx` displays three benefits as a simple list.
-- `Stats.tsx` maps four illustrative statistics into a description list.
-- `CTA.tsx` contains a contact message and an email link. There is no form, dialog, or backend.
-- `Footer.tsx` shows the company name, navigation, placeholder contact information, and copyright.
-- `Icon.tsx` holds the shared brand and simple SVG service icons.
+The Render service uses the `PORT` environment variable supplied by Render. SQLite is suitable for demonstrating this assignment; a hosted PostgreSQL database would be more appropriate for permanent production storage.
 
-## Where TypeScript helps
+## Project structure
 
-`src/data/companyData.ts` defines `NavigationItem` and `Service` types, so each item has the fields its component needs. `IconName` lists the four allowed icon names. The `ServiceCard` props and menu button ref are also typed. The remaining simple arrays use TypeScript's automatic type inference.
-
-## Styling and responsive layout
-
-`src/index.css` contains colour variables, shared styles, a labelled block for each page section, and three width-based media queries:
-
-- Above 1100px: four service cards per row. The hero stays a single column at every size.
-- At 1100px and below: two service cards per row and smaller gaps.
-- At 768px and below: a mobile menu, stacked About/Why Us content, and two statistics per row.
-- At 480px and below: one service card per row and a stacked footer.
-
-Layouts use CSS grid and flexbox. Links have visible keyboard focus styles, and reduced-motion preferences turn off smooth scrolling and transitions. System fonts avoid external font downloads.
-
-## Demo content
-
-The company and statistics are fictional. `hello@nuvra.example` is a placeholder email address: the contact link can open an email application, but it is not a working company inbox. Replace it with your real address before using the page for a real business.
+```text
+src/
+	App.tsx
+	components/
+		CTA.tsx
+	index.css
+server/
+	index.ts
+package.json
+vite.config.ts
+```
