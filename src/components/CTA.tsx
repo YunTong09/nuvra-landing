@@ -2,10 +2,12 @@ import { useState, type FormEvent } from "react";
 
 export function CTA() {
   const [statusMessage, setStatusMessage] = useState("");
+  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatusMessage("");
+    setStatusType("");
 
     const form = event.currentTarget;
     const fields = new FormData(form);
@@ -33,6 +35,7 @@ export function CTA() {
       }
 
       setStatusMessage(result.message);
+      setStatusType("success");
       form.reset();
     } catch (error) {
       setStatusMessage(
@@ -40,6 +43,7 @@ export function CTA() {
           ? error.message
           : "Could not send inquiry. Please try again.",
       );
+      setStatusType("error");
     }
   }
 
@@ -73,7 +77,11 @@ export function CTA() {
           </div>
 
           <button className="contact-submit" type="submit">Send inquiry</button>
-          {statusMessage && <p role="status">{statusMessage}</p>}
+          {statusMessage && (
+            <p className={`contact-status ${statusType}`} role="status">
+              {statusMessage}
+            </p>
+          )}
         </form>
       </div>
     </section>

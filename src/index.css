@@ -373,10 +373,26 @@ p {
 .contact-submit:hover {
   opacity: 0.85;
 }
-.contact-form [role="status"] {
-  margin-top: 16px;
-  color: var(--accent);
+.contact-status {
+  width: fit-content;
+  max-width: 100%;
+  margin: 18px auto 0;
+  padding: 9px 16px;
+  border: 1px solid;
+  border-radius: 999px;
+  background: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
   text-align: center;
+}
+.contact-status.success {
+  border-color: #5fbf91;
+  color: #226c50;
+}
+.contact-status.error {
+  border-color: #d87979;
+  color: #a53f3f;
 }
 .contact-content small {
   display: block;
