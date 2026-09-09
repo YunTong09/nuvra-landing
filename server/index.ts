@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 app.get("/", (req, res) => {
-    res.send("Nurva backend is running");
+    res.send("Nuvra backend is running");
 });
 
 app.post("/api/contact", (req, res) => {
