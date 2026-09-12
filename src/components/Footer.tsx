@@ -10,9 +10,9 @@ export function Footer() {
               <Brand />
             </a>
             <p>
-              Websites and software
+              Simple tools
               <br />
-              for growing businesses.
+              for everyday organisation.
             </p>
           </div>
           <nav aria-label="Footer navigation">

@@ -4,12 +4,12 @@ export function About() {
       <div className="container about-grid">
         <div>
           <p className="section-label">ABOUT</p>
-          <h2>Who we are</h2>
+          <h2>Less mental clutter. More clarity.</h2>
         </div>
         <div className="about-copy">
           <p>
-            We’re a small team of developers and designers. We build practical
-            digital tools that help businesses with their everyday work.
+            Nuvra creates simple digital tools that help people organise
+            everyday tasks, reduce overwhelm, and focus on what matters next.
           </p>
         </div>
       </div>

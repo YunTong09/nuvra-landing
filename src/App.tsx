@@ -1,3 +1,4 @@
+import { Admin } from "./components/Admin";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { About } from "./components/About";
@@ -7,6 +8,8 @@ import { Stats } from "./components/Stats";
 import { CTA } from "./components/CTA";
 import { Footer } from "./components/Footer";
 export default function App() {
+  if (window.location.pathname.replace(/\/+$/, "") === "/admin")
+    return <Admin />;
   return (
     <>
       <a className="skip-link" href="#main-content">
