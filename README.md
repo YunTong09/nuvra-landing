@@ -88,7 +88,19 @@ package.json
 vite.config.ts
 ```
 
-## Task 3 — Tool content management
+## Task 3 — Admin and database management
+
+Task 3 adds an internal admin page for managing the company's tools, clients, and subscriptions. Each section supports **Create, Read, Update, and Delete (CRUD)** through a backend API, with records stored in SQLite.
+
+- **Tools:** Add, view, edit, and delete the tool items displayed on the landing page. The landing page retrieves these records from the database through the API instead of using hard-coded cards.
+- **Clients:** Manage client names and email addresses, with a unique ID for each client.
+- **Subscriptions:** Link a client to a tool using foreign keys and manage the subscription's active or cancelled status.
+
+All three tables include creation and update timestamps. The backend validates submitted data, rejects duplicate client emails and client–tool subscriptions, and prevents deletion of records that still have linked subscriptions. The admin interface provides loading, success, and error feedback, while the existing feedback form remains connected to its API.
+
+The complete flow is: **Admin form → Backend API → Validation → SQLite → Updated admin list**.
+
+### Open the admin page
 
 Run `npm run server` in one terminal and `npm run dev` in another. Restart an already-running backend after changing its code.
 
