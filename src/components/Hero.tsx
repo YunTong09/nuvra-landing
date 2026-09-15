@@ -1,4 +1,8 @@
+import { spacePath } from "../auth";
+import { useCurrentUser } from "../useCurrentUser";
+
 export function Hero() {
+  const user = useCurrentUser();
   return (
     <section className="hero section" id="home">
       <div className="container">
@@ -16,6 +20,13 @@ export function Hero() {
               How it works →
             </a>
           </div>
+          {user === null && <div className="button-row hero-account-actions">
+            <a className="button" href="/register">Create account</a>
+            <a className="text-link" href="/login">Already have an account? Log in →</a>
+          </div>}
+          {user && <div className="button-row hero-account-actions">
+            <a className="text-link" href={spacePath(user)}>Go to My space →</a>
+          </div>}
         </div>
       </div>
     </section>

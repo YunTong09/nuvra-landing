@@ -209,6 +209,9 @@ p {
   color: var(--text-muted-light);
   font-size: 1.0625rem;
 }
+.hero-account-actions {
+  margin-top: 24px;
+}
 /* About */
 .about {
   background: var(--bg-light);

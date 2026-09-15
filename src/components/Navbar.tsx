@@ -1,19 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { navigation } from "../data/companyData";
 import { Brand } from "./Icon";
-import { currentUser, spacePath } from "../auth";
+import { spacePath } from "../auth";
+import { useCurrentUser } from "../useCurrentUser";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [spaceHref, setSpaceHref] = useState("/login");
+  const user = useCurrentUser();
   // Return keyboard focus to the menu button when Escape closes the menu.
   const menuButton = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    let active = true;
-    currentUser().then(user => { if (active) setSpaceHref(spacePath(user)); });
-    return () => { active = false; };
-  }, []);
-
   return (
     <header
       className="site-header"
@@ -47,11 +42,11 @@ export function Navbar() {
               {item.label}
             </a>
           ))}
-          <a href={spaceHref} onClick={(event) => {
-            event.preventDefault();
-            setOpen(false);
-            currentUser().then(user => window.location.assign(spacePath(user)));
-          }}>My space</a>
+          {user === null && <>
+            <a href="/login" onClick={() => setOpen(false)}>Log in</a>
+            <a href="/register" onClick={() => setOpen(false)}>Create account</a>
+          </>}
+          {user && <a href={spacePath(user)} onClick={() => setOpen(false)}>My space</a>}
           <a
             className="button button-small"
             href="#contact"
