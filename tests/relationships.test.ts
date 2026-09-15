@@ -11,13 +11,21 @@ test("clients and subscriptions enforce relationships and preserve existing reco
   const address = server.address();
   assert.ok(address && typeof address !== "string");
   const base = `http://127.0.0.1:${address.port}/api/`;
+  let cookie = "";
   const request = (path: string, method = "GET", body?: object) =>
     fetch(base + path, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Nuvra-Request": "1", ...(cookie ? { Cookie: cookie } : {}) },
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
   try {
+    assert.equal((await request("clients")).status, 401);
+    const registration = await request("auth/register", "POST", {
+      name: "Test admin", email: "admin@example.com", password: "correct horse battery staple",
+    });
+    assert.equal(registration.status, 201);
+    cookie = registration.headers.get("set-cookie")!.split(";")[0];
+    db.prepare("UPDATE users SET role = 'admin' WHERE email = ?").run("admin@example.com");
     assert.equal(db.pragma("foreign_keys", { simple: true }), 1);
     assert.equal(
       (await request("clients", "POST", { name: "", email: "bad" })).status,

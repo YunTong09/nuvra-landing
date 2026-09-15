@@ -1,8 +1,5 @@
-// Development uses the local Vite proxy. Production keeps the existing Render API.
-export const API_URL = (
-  import.meta.env.VITE_API_URL ??
-  (import.meta.env.DEV ? "" : "https://nuvra-landing.onrender.com")
-).replace(/\/$/, "");
+// Development uses the local Vite proxy; production uses same-origin Vercel Functions.
+export const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
 export type Tool = {
   id: number;
@@ -46,7 +43,7 @@ export async function adminRequest(
   const response = await fetch(`${API_URL}/api/${path}`, {
     method,
     cache: "no-store",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-Nuvra-Request": "1" },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
   if (response.status === 204) return null;

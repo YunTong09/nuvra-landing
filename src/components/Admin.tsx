@@ -3,8 +3,24 @@ import { API_URL, loadTools, type Tool } from "../api";
 import { ClientsAdmin } from "./ClientsAdmin";
 import { SubscriptionsAdmin } from "./SubscriptionsAdmin";
 import { Brand } from "./Icon";
+import { currentUser } from "../auth";
 
 export function Admin() {
+  const [access, setAccess] = useState<"checking" | "allowed" | "denied">("checking");
+  useEffect(() => {
+    let active = true;
+    currentUser().then(user => {
+      if (!active) return;
+      if (!user) { window.location.replace("/login"); return; }
+      setAccess(user.role === "admin" ? "allowed" : "denied");
+    });
+    return () => { active = false; };
+  }, []);
+  if (access === "checking") return <main className="section"><div className="container"><p role="status">Checking access…</p></div></main>;
+  if (access === "denied") return <main className="section"><div className="container">
+    <h1>Administrator access required</h1><p>Your account cannot manage company records.</p>
+    <a className="button" href="/account">Go to my space</a>
+  </div></main>;
   const section =
     new URLSearchParams(window.location.search).get("table") || "tools";
   return (
@@ -17,7 +33,9 @@ export function Admin() {
           <a href="/" aria-label="Nuvra home">
             <Brand />
           </a>
-          <a href="/">Back to website →</a>
+          <nav className="account-nav" aria-label="Admin navigation">
+            <a href="/account">My space</a><a href="/">Website →</a>
+          </nav>
         </div>
       </header>
       <main id="admin-content" className="section admin-page">
@@ -139,7 +157,7 @@ function ToolsAdmin() {
         `${API_URL}/api/tools${editingId === null ? "" : `/${editingId}`}`,
         {
           method: editingId === null ? "POST" : "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Nuvra-Request": "1" },
           body: JSON.stringify({ title, description }),
         },
       );
@@ -177,6 +195,7 @@ function ToolsAdmin() {
     try {
       const response = await fetch(`${API_URL}/api/tools/${tool.id}`, {
         method: "DELETE",
+        headers: { "X-Nuvra-Request": "1" },
       });
       if (!response.ok) {
         const result = await response.json();

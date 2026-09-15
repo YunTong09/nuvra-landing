@@ -1,6 +1,6 @@
 # Nuvra — My project review guide
 
-This project lives in the `Voltix` folder. It uses React and TypeScript for the website, Express running on Node.js for the backend, and SQLite for stored data.
+This project lives in the `Voltix` folder. It uses React and TypeScript for the website, Express running on Node.js for the backend, and Neon PostgreSQL when `DATABASE_URL` is set. Without that variable, local development uses SQLite.
 
 ## 1. What each task adds
 
@@ -9,6 +9,7 @@ This project lives in the `Voltix` folder. It uses React and TypeScript for the 
 | Task 1 | A responsive company landing page | `src/App.tsx`, landing page components, `src/index.css` |
 | Task 2 | A form connected to an API and database | `CTA.tsx`, `server/app.ts`, `server/index.ts` |
 | Task 3 | Admin CRUD for tools, extended with clients and subscriptions | `Admin.tsx`, `ClientsAdmin.tsx`, `SubscriptionsAdmin.tsx`, `server/tools.ts`, `server/relationships.ts` |
+| Task 4 | Registration, login, secure sessions, and protected account/admin pages | `AuthPage.tsx`, `AccountPage.tsx`, `server/auth-core.ts`, `server/auth-sqlite.ts`, `server/auth-postgres.ts` |
 
 CRUD means **Create, Read, Update, Delete**. The feedback form still sends the original inquiry fields, even though its visible wording now asks about everyday organisation.
 
@@ -18,7 +19,7 @@ CRUD means **Create, Read, Update, Delete**. The feedback form still sends the o
 | --- | --- | --- |
 | Frontend | In the visitor's browser | Display pages, collect input, send requests, show results |
 | Backend | In a Node.js process, outside the browser | Receive API requests, validate data, read/write the database |
-| Database | SQLite file opened by the backend | Keep records after the page closes or the server restarts |
+| Database | Neon PostgreSQL online, or a local SQLite file | Keep records after the page closes or the server restarts |
 
 ```text
 Browser / React
@@ -27,7 +28,7 @@ Browser / React
 Backend / Express
     │ Validate input, then run SQL
     ▼
-SQLite database
+PostgreSQL or SQLite database
     │ Return records or confirm a change
     ▼
 Backend sends an HTTP response
@@ -36,7 +37,7 @@ Backend sends an HTTP response
 React updates what the user sees
 ```
 
-The frontend does not open the database file directly.
+The frontend does not connect to the database directly.
 
 ## 3. Project structure
 
@@ -44,7 +45,7 @@ The frontend does not open the database file directly.
 Voltix/
 ├── src/                         Frontend source code
 │   ├── main.tsx                 Starts React
-│   ├── App.tsx                  Chooses landing page or admin page
+│   ├── App.tsx                  Chooses landing, login, account, or admin page
 │   ├── api.ts                   API address, record types, request helpers
 │   ├── index.css                Website and admin styles
 │   ├── assets/                  Assets imported by frontend code, if present
@@ -61,6 +62,8 @@ Voltix/
 │       ├── Footer.tsx
 │       ├── Icon.tsx
 │       ├── Admin.tsx
+│       ├── AuthPage.tsx
+│       ├── AccountPage.tsx
 │       ├── ClientsAdmin.tsx
 │       └── SubscriptionsAdmin.tsx
 ├── server/                      Backend source code
@@ -68,6 +71,10 @@ Voltix/
 │   ├── app.ts                   Builds Express app and feedback endpoint
 │   ├── tools.ts                 Tool table and CRUD endpoints
 │   ├── relationships.ts         Client/subscription tables and CRUD endpoints
+│   ├── auth-core.ts             Shared password, cookie, and validation helpers
+│   ├── auth-sqlite.ts           Local registration, login, and sessions
+│   ├── auth-postgres.ts         Neon registration, login, and sessions
+│   ├── postgres.ts              PostgreSQL schema and API routes
 │   └── voltix.db                Local SQLite data; created at runtime
 ├── tests/
 │   ├── tools.test.ts
@@ -80,7 +87,8 @@ Voltix/
 ├── tsconfig.json                Links the TypeScript configurations
 ├── tsconfig.app.json            TypeScript settings for src/
 ├── tsconfig.node.json           TypeScript settings for backend and Vite config
-├── vercel.json                  Frontend hosting rewrite for /admin
+├── api/index.ts                 Vercel API Function entry
+├── vercel.json                  API and page rewrites
 ├── .gitignore                   Files Git should ignore
 ├── .oxlintrc.json                Linter settings
 ├── .openai/hosting.json          Hosting configuration from the earlier Sites setup
@@ -95,7 +103,7 @@ Voltix/
 | File | Purpose |
 | --- | --- |
 | `src/main.tsx` | Mounts React into the HTML page and loads the main styles. |
-| `src/App.tsx` | Checks the URL. `/admin` displays `Admin`; other paths display the landing page sections. |
+| `src/App.tsx` | Checks the URL. `/login` and `/register` show authentication, `/account` shows the personal workspace, `/admin` shows management, and `/` shows the landing page. |
 | `src/index.css` | Controls colours, gradients, spacing, responsive layouts, forms, and admin tables. |
 | `src/data/companyData.ts` | Holds shared content used by landing page components. Tool records now come from the API instead. |
 | `Navbar.tsx` | Displays the top navigation. |
@@ -108,6 +116,8 @@ Voltix/
 | `Footer.tsx` | Displays the bottom section and links. |
 | `Icon.tsx` | Provides reusable icons. |
 | `Admin.tsx` | Displays admin navigation, chooses the active table, and contains the tools management component (`ToolsAdmin`). |
+| `AuthPage.tsx` | Simple registration and login forms with backend errors. |
+| `AccountPage.tsx` | Protected page showing the signed-in user's account details. |
 | `ClientsAdmin.tsx` | Displays the client list and forms for adding/editing clients; handles deletion. |
 | `SubscriptionsAdmin.tsx` | Loads clients, tools, and subscriptions; lets the admin link records and change subscription status. |
 | `src/api.ts` | Defines `API_URL`, `Tool`, `Client`, and `Subscription`, plus `loadTools()` and `adminRequest()`. |
@@ -129,7 +139,7 @@ Each component manages a different form and list. Clients need a name and email;
 
 | File | What happens here | Why separate it? |
 | --- | --- | --- |
-| `server/index.ts` | Opens `server/voltix.db` (or `DATABASE_PATH`), calls `createApp(database)`, and listens on `PORT` or 3001. | Keeps starting the server separate from defining its behaviour. |
+| `server/index.ts` | Starts the local backend with PostgreSQL when `DATABASE_URL` is set, or SQLite otherwise. | Local development only; Vercel uses `api/index.ts`. |
 | `server/app.ts` | Creates Express, enables foreign keys, configures CORS and JSON parsing, creates inquiries, handles `/api/contact`, registers the other routes, and handles errors. | Provides one place to connect the API pieces. Tests can create an app with a separate test database. |
 | `server/tools.ts` | Creates the tools table, seeds starter tools when first created, validates tool input, and defines tool CRUD routes. | Keeps tool-specific SQL and routes together. |
 | `server/relationships.ts` | Creates clients/subscriptions, validates their input, and defines their CRUD routes and joined reads. | Keeps related client and subscription logic together. |
@@ -138,7 +148,7 @@ Each component manages a different form and list. Clients need a name and email;
 
 ## 6. Database structure
 
-All four tables live in the same SQLite database file.
+All tables live in one database: SQLite locally, or Neon PostgreSQL when configured.
 
 | Table | Fields | Purpose |
 | --- | --- | --- |
@@ -181,7 +191,7 @@ The default file is `server/voltix.db`. Local and hosted databases are separate.
 
 ```text
 npm run server
-→ server/index.ts opens SQLite
+→ server/index.ts opens SQLite or PostgreSQL locally
 → createApp(database) in server/app.ts
 → registerTools() and registerRelationships() set up tables/routes
 → app.listen() waits for requests
@@ -190,7 +200,7 @@ npm run dev
 → Vite serves the frontend
 → index.html loads src/main.tsx
 → React renders App.tsx
-→ App chooses the landing page or admin page
+→ App chooses the landing, login, account, or admin page
 ```
 
 ### Submitting feedback (Task 2)
@@ -281,7 +291,7 @@ Common responses: **200** success, **201** created, **204** deleted with no resp
 | `tsconfig.node.json` | Checks `server/**/*.ts` and `vite.config.ts` using Node.js types. |
 | `tsconfig.json` | Connects the two TypeScript configurations for the build check. |
 | `vite.config.ts` | Makes local `/api` requests go to `http://127.0.0.1:3001`. |
-| `vercel.json` | Lets Vercel serve the frontend when `/admin` is opened directly. |
+| `vercel.json` | Routes `/api/*` to the Vercel Function and serves the frontend for `/admin`, `/account`, `/login`, and `/register`. |
 | `.gitignore` | Excludes generated files and the local database from Git. |
 | `.openai/hosting.json` | Configuration from the earlier Sites hosting setup; not where the form records are stored. |
 
@@ -313,6 +323,9 @@ Leave both running. The current backend command does not automatically restart a
 | Tools admin | `http://localhost:5173/admin` |
 | Clients admin | `http://localhost:5173/admin?table=clients` |
 | Subscriptions admin | `http://localhost:5173/admin?table=subscriptions` |
+| Registration | `http://localhost:5173/register` |
+| Login | `http://localhost:5173/login` |
+| Personal workspace | `http://localhost:5173/account` |
 | Backend status | `http://localhost:3001/` |
 
 Use the frontend port printed by Vite if it chooses a different one.
@@ -326,10 +339,12 @@ npm run preview
 
 - `tests/tools.test.ts` checks tool CRUD, validation, persistence, and feedback submission using a temporary database.
 - `tests/relationships.test.ts` checks clients, subscriptions, uniqueness, and foreign-key restrictions using a separate test database.
+- `tests/auth.test.ts` checks backend validation, password storage, sessions, and administrator access.
+- `tests/vercel-routing.test.ts` checks API route preservation through the Vercel rewrite.
 - Tests do not delete the real application records.
 - `lint` checks code issues; `build` checks TypeScript and generates `dist/`; `preview` serves that frontend build locally and still needs the backend for API requests.
 
-For a manual check: submit feedback, add/edit a tool, refresh the landing page, add a client, create a subscription, change its status, and check that deleting a linked client/tool is blocked. Restart the backend and verify saved records remain.
+For a manual check: register an account, confirm `/account` shows your details, sign out and sign back in. Run `npm run admin:promote -- your@email.com` against the same database to grant administrator access, then check tool/client/subscription CRUD. A normal account should see an access message at `/admin` and receive HTTP 403 from management APIs. Restart the backend and verify the account remains.
 
 ## 12. Troubleshooting and hosting reminders
 
@@ -343,9 +358,17 @@ For a manual check: submit feedback, add/edit a tool, refresh the landing page, 
 | Add Subscription is disabled | Clients and tools must load successfully, and at least one of each must exist. |
 | Changes do not appear online | Local file changes do not deploy the hosted frontend/backend. |
 
-The configured hosting setup is **Vercel for the frontend** and **Render for the backend**. `src/api.ts` defaults production requests to `https://nuvra-landing.onrender.com`; `VITE_API_URL` can override this at build time. Render supplies `PORT`. SQLite on a host needs persistent storage to retain data when the service filesystem is replaced.
+The configured hosting setup is **Vercel for both the frontend and API**, with **Neon PostgreSQL for data**. `src/api.ts` sends production requests to the same Vercel domain, and `vercel.json` routes `/api/*` to the Vercel Function in `api/index.ts`. Set `DATABASE_URL` as a secret environment variable in the Vercel project for Production and Preview. Use a Neon pooled connection string. `VITE_API_URL` remains an optional build-time override, but should normally be unset. The old Render API is no longer used by the frontend.
 
-The admin page currently has **no authentication**. Opening `/admin` is navigation, not a login check, and its API is also unprotected.
+Registration creates a normal user account. Users can sign in and view their own account at `/account`. `/admin` and all client/subscription APIs and tool write APIs require an administrator account. Passwords are stored as scrypt hashes, sessions as hashed random tokens in the database, and the browser receives a HttpOnly, SameSite=Strict cookie. Vercel also sets its Secure flag. Backend validation, origin checks, and login attempt limits protect the authentication endpoints.
+
+## Neon PostgreSQL setup
+
+The local backend uses PostgreSQL when `DATABASE_URL` is set and otherwise keeps using local SQLite. The Vercel Function requires `DATABASE_URL`; it does not use SQLite. Create a Neon project, copy a pooled PostgreSQL connection string from **Connect**, and set `DATABASE_URL` as a secret environment variable in the Vercel project. Keep the password out of `VITE_*` variables and Git. The API creates its tables and, on a fresh database, four starter tools. The React frontend still calls the same API paths.
+
+To copy existing local records into a **new Neon project**, set `DATABASE_URL` in your terminal and run `npm run migrate:neon` before the backend starts writing new Neon records. Set `DATABASE_PATH` too if the source is not `server/voltix.db`. The script reads SQLite without changing it, copies inquiries, tools, clients, subscriptions, and users in one PostgreSQL transaction, and refuses a target that already contains records beyond the four starter tools. Sessions are not copied; users sign in again on Neon. Keep a backup of `server/voltix.db` until you have checked the copied data. Run `npm run server` with `DATABASE_URL` set to use Neon locally.
+
+To create the first administrator, register a normal account, then run `npm run admin:promote -- you@example.com` from a trusted terminal with the same `DATABASE_URL` as Vercel. For local SQLite, leave `DATABASE_URL` unset and use the local database path. Sign out and sign back in, or refresh `/admin`, after promotion. Never grant admin access based only on a public registration form.
 
 ## 13. Where to start when reviewing
 

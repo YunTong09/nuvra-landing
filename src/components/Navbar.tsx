@@ -40,6 +40,7 @@ export function Navbar() {
               {item.label}
             </a>
           ))}
+          <a href="/account" onClick={() => setOpen(false)}>My space</a>
           <a
             className="button button-small"
             href="#contact"

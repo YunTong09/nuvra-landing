@@ -17,14 +17,22 @@ test("tools CRUD, validation, persistence, and feedback regression", async () =>
   const address = server.address();
   assert.ok(address && typeof address !== "string");
   const base = `http://127.0.0.1:${address.port}`;
+  let cookie = "";
   async function request(path: string, method = "GET", body?: unknown) {
     return fetch(base + path, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Nuvra-Request": "1", ...(cookie ? { Cookie: cookie } : {}) },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
   }
   try {
+    assert.equal((await request("/api/tools", "POST", { title: "Blocked", description: "No session" })).status, 401);
+    const registration = await request("/api/auth/register", "POST", {
+      name: "Test admin", email: "admin@example.com", password: "correct horse battery staple",
+    });
+    assert.equal(registration.status, 201);
+    cookie = registration.headers.get("set-cookie")!.split(";")[0];
+    db.prepare("UPDATE users SET role = 'admin' WHERE email = ?").run("admin@example.com");
     const starters = await (await request("/api/tools")).json();
     assert.equal(starters.length, 4);
     assert.equal(starters[0].title, "Task Simplifier");
@@ -122,7 +130,7 @@ test("tools CRUD, validation, persistence, and feedback regression", async () =>
     );
     const malformed = await fetch(base + "/api/tools", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Nuvra-Request": "1", Cookie: cookie },
       body: "{",
     });
     assert.equal(malformed.status, 400);

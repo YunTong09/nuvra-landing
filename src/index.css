@@ -762,3 +762,30 @@ p {
   outline: 3px solid #3884d4;
   outline-offset: 3px;
 }
+
+/* Account access reuses the site's simple form language. */
+.auth-page, .account-page { background: var(--bg-light); min-height: calc(100vh - 80px); }
+.auth-container { max-width: 520px; text-align: center; }
+.auth-container > p { margin-top: 14px; }
+.auth-form { margin-top: 28px; }
+.auth-fields { display: grid; grid-template-columns: 1fr; border: 0; padding: 0; margin: 0; }
+.auth-hint { color: var(--text-muted-light); font-size: .875rem; margin-top: 18px; }
+.auth-error { color: #a53f3f; margin: 16px 0; font-weight: 600; }
+.auth-switch { margin-top: 22px; }
+.auth-switch button, .account-nav button {
+  border: 0; background: transparent; color: var(--accent-dark); font-weight: 700; padding: 6px;
+}
+.auth-switch button:hover, .account-nav button:hover { text-decoration: underline; }
+.account-nav { display: flex; align-items: center; gap: 20px; }
+.account-nav button { color: var(--text-light); }
+.account-container { max-width: 760px; }
+.account-container > p { margin-top: 16px; }
+.account-loading { margin-top: 32px; }
+.account-card { margin-top: 32px; border: 1px solid var(--border); border-radius: 10px; background: white; padding: 28px; }
+.account-card h2 { font-size: 1.5rem; margin-bottom: 18px; }
+.account-card p { margin-top: 10px; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .auth-page, .account-page { padding: 48px 0; }
+  .account-card { padding: 20px; }
+  .account-nav { gap: 10px; }
+}
