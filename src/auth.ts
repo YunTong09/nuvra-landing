@@ -1,6 +1,9 @@
 import { API_URL } from "./api";
 
 export type CurrentUser = { id: number; name: string; email: string; role: "user" | "admin" };
+export function spacePath(user: CurrentUser | null) {
+  return user ? user.role === "admin" ? "/admin" : "/dashboard" : "/login";
+}
 
 export async function apiRequest<T>(path: string, method = "GET", body?: object): Promise<T> {
   const response = await fetch(`${API_URL}/api/${path}`, {

@@ -11,6 +11,10 @@ export function AccountPage() {
     currentUser().then(found => {
       if (!active) return;
       if (!found) { window.location.replace("/login"); return; }
+      if (found.role === "admin") { window.location.replace("/admin"); return; }
+      if (window.location.pathname === "/account") {
+        window.history.replaceState(null, "", "/dashboard");
+      }
       setUser(found);
     });
     return () => { active = false; };
@@ -30,15 +34,14 @@ export function AccountPage() {
     <header className="site-header"><div className="container nav-wrap">
       <a href="/" aria-label="Nuvra home"><Brand /></a>
       <nav className="account-nav" aria-label="Account navigation">
-        {user?.role === "admin" && <a href="/admin">Admin</a>}
         <a href="/">Website</a>
         <button onClick={logout} disabled={!user}>Log out</button>
       </nav>
     </div></header>
     <main id="account-content" className="section account-page">
       <div className="container account-container">
-        <p className="section-label">YOUR NUVRA ACCOUNT</p>
-        <h1>{user ? `Hello, ${user.name}` : "Your account"}</h1>
+        <p className="section-label">YOUR NUVRA DASHBOARD</p>
+        <h1>{user ? `Hello, ${user.name}` : "Your dashboard"}</h1>
         {user ? <div className="account-card">
           <h2>Account details</h2>
           <p><strong>Name:</strong> {user.name}</p>

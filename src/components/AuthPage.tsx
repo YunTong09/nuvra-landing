@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { apiRequest, type CurrentUser } from "../auth";
+import { apiRequest, spacePath, type CurrentUser } from "../auth";
 import { Brand } from "./Icon";
 
 export function AuthPage() {
@@ -20,7 +20,7 @@ export function AuthPage() {
     try {
       const result = await apiRequest<{ user: CurrentUser }>(`auth/${mode}`, "POST",
         mode === "register" ? { name, email, password } : { email, password });
-      window.location.assign(result.user.role === "admin" ? "/admin" : "/account");
+      window.location.assign(spacePath(result.user));
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Please try again.");
       setBusy(false);

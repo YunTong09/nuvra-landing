@@ -14,7 +14,7 @@ export default function App() {
   if (path === "/admin")
     return <Admin />;
   if (path === "/login" || path === "/register") return <AuthPage />;
-  if (path === "/account") return <AccountPage />;
+  if (path === "/dashboard" || path === "/account") return <AccountPage />;
   return (
     <>
       <a className="skip-link" href="#main-content">

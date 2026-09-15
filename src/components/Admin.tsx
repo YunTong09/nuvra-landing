@@ -3,10 +3,12 @@ import { API_URL, loadTools, type Tool } from "../api";
 import { ClientsAdmin } from "./ClientsAdmin";
 import { SubscriptionsAdmin } from "./SubscriptionsAdmin";
 import { Brand } from "./Icon";
-import { currentUser } from "../auth";
+import { apiRequest, currentUser } from "../auth";
 
 export function Admin() {
   const [access, setAccess] = useState<"checking" | "allowed" | "denied">("checking");
+  const [logoutError, setLogoutError] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
   useEffect(() => {
     let active = true;
     currentUser().then(user => {
@@ -16,10 +18,21 @@ export function Admin() {
     });
     return () => { active = false; };
   }, []);
+  async function logout() {
+    setLoggingOut(true);
+    setLogoutError("");
+    try {
+      await apiRequest<null>("auth/logout", "POST");
+      window.location.assign("/");
+    } catch {
+      setLogoutError("Could not log out. Please try again.");
+      setLoggingOut(false);
+    }
+  }
   if (access === "checking") return <main className="section"><div className="container"><p role="status">Checking access…</p></div></main>;
   if (access === "denied") return <main className="section"><div className="container">
     <h1>Administrator access required</h1><p>Your account cannot manage company records.</p>
-    <a className="button" href="/account">Go to my space</a>
+    <a className="button" href="/dashboard">Go to my dashboard</a>
   </div></main>;
   const section =
     new URLSearchParams(window.location.search).get("table") || "tools";
@@ -34,12 +47,14 @@ export function Admin() {
             <Brand />
           </a>
           <nav className="account-nav" aria-label="Admin navigation">
-            <a href="/account">My space</a><a href="/">Website →</a>
+            <a href="/">Website →</a>
+            <button type="button" onClick={logout} disabled={loggingOut}>Log out</button>
           </nav>
         </div>
       </header>
       <main id="admin-content" className="section admin-page">
         <div className="container admin-container">
+          {logoutError && <p className="auth-error" role="alert">{logoutError}</p>}
           <p className="section-label">CONTENT MANAGEMENT</p>
           <h1>Manage Nuvra</h1>
           <p className="admin-description">

@@ -1,11 +1,18 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { navigation } from "../data/companyData";
 import { Brand } from "./Icon";
+import { currentUser, spacePath } from "../auth";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [spaceHref, setSpaceHref] = useState("/login");
   // Return keyboard focus to the menu button when Escape closes the menu.
   const menuButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    let active = true;
+    currentUser().then(user => { if (active) setSpaceHref(spacePath(user)); });
+    return () => { active = false; };
+  }, []);
 
   return (
     <header
@@ -40,7 +47,11 @@ export function Navbar() {
               {item.label}
             </a>
           ))}
-          <a href="/account" onClick={() => setOpen(false)}>My space</a>
+          <a href={spaceHref} onClick={(event) => {
+            event.preventDefault();
+            setOpen(false);
+            currentUser().then(user => window.location.assign(spacePath(user)));
+          }}>My space</a>
           <a
             className="button button-small"
             href="#contact"
