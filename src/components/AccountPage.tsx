@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiRequest, currentUser, type CurrentUser } from "../auth";
 import { Brand } from "./Icon";
+import { AccountDetailsForm } from "./AccountDetailsForm";
 
 export function AccountPage() {
   const [user, setUser] = useState<CurrentUser | null>(null);
@@ -42,12 +43,8 @@ export function AccountPage() {
       <div className="container account-container">
         <p className="section-label">YOUR NUVRA DASHBOARD</p>
         <h1>{user ? `Hello, ${user.name}` : "Your dashboard"}</h1>
-        {user ? <div className="account-card">
-          <h2>Account details</h2>
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p>Your account is ready. Explore Nuvra's simple tools on the website.</p>
-        </div> : <p role="status" className="account-loading">Checking your account…</p>}
+        {user ? <AccountDetailsForm user={user} onSaved={setUser} />
+          : <p role="status" className="account-loading">Checking your account…</p>}
         {error && <p className="auth-error" role="alert">{error}</p>}
       </div>
     </main>

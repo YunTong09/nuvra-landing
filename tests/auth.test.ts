@@ -17,6 +17,9 @@ test("registration, login, sessions, and admin access", async () => {
     }, ...(body ? { body: JSON.stringify(body) } : {}) });
   try {
     assert.equal((await request("/api/auth/me")).status, 401);
+    assert.equal((await request("/api/auth/me", "PUT", {
+      name: "Blocked", email: "blocked@example.com",
+    })).status, 401);
     assert.equal((await request("/api/auth/register", "POST", {
       name: "", email: "bad", password: "short",
     })).status, 400);
@@ -70,6 +73,22 @@ test("registration, login, sessions, and admin access", async () => {
     const benCookie = ben.headers.get("set-cookie")!.split(";")[0];
     const benAccount = await (await request("/api/auth/me", "GET", undefined, benCookie)).json();
     assert.equal(benAccount.user.email, "ben@example.com");
+    assert.equal((await request("/api/auth/me", "PUT", {
+      name: "", email: "bad",
+    }, secondCookie)).status, 400);
+    assert.equal((await request("/api/auth/me", "PUT", {
+      name: "Amy", email: "BEN@example.com",
+    }, secondCookie)).status, 409);
+    const update = await request("/api/auth/me", "PUT", {
+      name: "Amy Updated", email: "AMY.NEW@example.com",
+    }, secondCookie);
+    assert.equal(update.status, 200);
+    assert.deepEqual((await update.json()).user, {
+      id: amy.id, name: "Amy Updated", email: "amy.new@example.com", role: "user",
+    });
+    const updatedAccount = await (await request("/api/auth/me", "GET", undefined, secondCookie)).json();
+    assert.equal(updatedAccount.user.name, "Amy Updated");
+    assert.equal(updatedAccount.user.email, "amy.new@example.com");
     assert.equal((await request("/api/auth/logout", "POST", undefined, amyCookie)).status, 204);
     assert.equal((await request("/api/auth/me", "GET", undefined, amyCookie)).status, 401);
     db.prepare("UPDATE users SET role = 'admin' WHERE id = ?").run(amy.id);

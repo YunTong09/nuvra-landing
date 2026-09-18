@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import type { Pool } from "pg";
 import {
   clearSessionCookie, clientKey, dummyPasswordHash, hashPassword, newSession, normalizedEmail,
-  registrationError, sameOriginMutation, sessionDurationMs, sessionToken,
+  profileError, registrationError, sameOriginMutation, sessionDurationMs, sessionToken,
   setSessionCookie, tokenHash, verifyPassword,
 } from "./auth-core.ts";
 
@@ -99,6 +99,21 @@ export function registerPostgresAuth(app: Express, db: Pool) {
     res.json({ user: await issueSession(user, res) });
   });
   app.get("/api/auth/me", (_req, res) => res.json({ user: res.locals.user }));
+  app.put("/api/auth/me", async (req, res) => {
+    const { name, email } = req.body ?? {};
+    const error = profileError(name, email);
+    if (error) return res.status(400).json({ error });
+    try {
+      const result = await db.query(`UPDATE users SET name = $1, email = $2
+        WHERE id = $3 RETURNING id, name, email, role`,
+      [name.trim(), normalizedEmail(email), res.locals.user.id]);
+      res.json({ user: result.rows[0] });
+    } catch (failure) {
+      if ((failure as { code?: string }).code === "23505")
+        return res.status(409).json({ error: "An account with this email already exists." });
+      throw failure;
+    }
+  });
   app.post("/api/auth/logout", async (req, res) => {
     const token = sessionToken(req);
     if (token) await db.query("DELETE FROM sessions WHERE token_hash = $1", [tokenHash(token)]);

@@ -787,6 +787,11 @@ p {
 .account-card { margin-top: 32px; border: 1px solid var(--border); border-radius: 10px; background: white; padding: 28px; }
 .account-card h2 { font-size: 1.5rem; margin-bottom: 18px; }
 .account-card p { margin-top: 10px; overflow-wrap: anywhere; }
+.account-form { display: grid; gap: 12px; }
+.account-form h2 { margin-bottom: 6px; }
+.account-form label { font-weight: 600; }
+.account-form .button { justify-self: start; margin-top: 8px; }
+.account-notice { color: var(--accent-dark); font-weight: 600; }
 @media (max-width: 600px) {
   .auth-page, .account-page { padding: 48px 0; }
   .account-card { padding: 20px; }

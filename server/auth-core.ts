@@ -12,12 +12,18 @@ export const sessionCookie = process.env.VERCEL ? "__Host-nuvra_session" : "nuvr
 export const dummyPasswordHash = `scrypt$32768$8$3$${"00".repeat(16)}$${"00".repeat(64)}`;
 export const normalizedEmail = (email: string) => email.trim().toLowerCase();
 
-export function registrationError(name: unknown, email: unknown, password: unknown) {
+export function profileError(name: unknown, email: unknown) {
   if (typeof name !== "string" || !name.trim() || name.trim().length > 100)
     return "Enter a name of 1–100 characters.";
   if (typeof email !== "string" || email.length > 254 ||
       !/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(email.trim()))
     return "Enter a valid email address.";
+  return "";
+}
+
+export function registrationError(name: unknown, email: unknown, password: unknown) {
+  const error = profileError(name, email);
+  if (error) return error;
   if (typeof password !== "string" || password.length < 12 || password.length > 128)
     return "Use a password of 12–128 characters.";
   return "";

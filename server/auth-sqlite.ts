@@ -2,7 +2,7 @@ import type { Express, Response } from "express";
 import type Database from "better-sqlite3";
 import {
   clearSessionCookie, clientKey, dummyPasswordHash, hashPassword, newSession, normalizedEmail,
-  registrationError, sameOriginMutation, sessionDurationMs, sessionToken,
+  profileError, registrationError, sameOriginMutation, sessionDurationMs, sessionToken,
   setSessionCookie, tokenHash, verifyPassword,
 } from "./auth-core.ts";
 
@@ -117,6 +117,22 @@ export function registerSqliteAuth(app: Express, db: Database.Database) {
     res.json({ user: issueSession(user, res) });
   });
   app.get("/api/auth/me", (_req, res) => res.json({ user: res.locals.user }));
+  app.put("/api/auth/me", (req, res) => {
+    const { name, email } = req.body ?? {};
+    const error = profileError(name, email);
+    if (error) return res.status(400).json({ error });
+    try {
+      db.prepare("UPDATE users SET name = ?, email = ? WHERE id = ?")
+        .run(name.trim(), normalizedEmail(email), res.locals.user.id);
+      const user = db.prepare("SELECT id, name, email, role FROM users WHERE id = ?")
+        .get(res.locals.user.id) as User;
+      res.json({ user });
+    } catch (failure) {
+      if ((failure as { code?: string }).code === "SQLITE_CONSTRAINT_UNIQUE")
+        return res.status(409).json({ error: "An account with this email already exists." });
+      throw failure;
+    }
+  });
   app.post("/api/auth/logout", (req, res) => {
     const token = sessionToken(req);
     if (token) db.prepare("DELETE FROM sessions WHERE token_hash = ?").run(tokenHash(token));

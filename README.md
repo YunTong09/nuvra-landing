@@ -13,7 +13,7 @@ The browser calls `/api/*` on the same Vercel site. The API validates requests a
 
 ## Website direction and current behaviour
 
-Visitors can browse the company website and its tool list, then send an inquiry. A customer can register, log in, log out, and view their own name and email in a protected dashboard. **My space** sends customers to `/dashboard` and administrators to `/admin`.
+Visitors can browse the company website and its tool list, then send an inquiry. A customer can register, log in, log out, and view or update their own name and email in a protected dashboard. **My space** sends customers to `/dashboard` and administrators to `/admin`.
 
 An administrator can manage tool descriptions, client records, and client–tool subscription records. These client records are managed by staff; they are separate from website login accounts. Customers do not yet choose or change subscriptions themselves. Public registration creates a customer account; administrator access must be granted separately through a trusted backend command or database operation.
 
