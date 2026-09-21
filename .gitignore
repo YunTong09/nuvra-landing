@@ -26,3 +26,6 @@ dist-ssr
 
 server/voltix.db
 
+# Private assignment submission instructions
+README-submission.md
+Nuvra-Task-6*.zip
