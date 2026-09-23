@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { navigation } from "../data/companyData";
 import { Brand } from "./Icon";
-import { spacePath } from "../auth";
+import { spacePath } from "../features/account/auth";
 import { useCurrentUser } from "../useCurrentUser";
 
 export function Navbar() {

@@ -1,4 +1,4 @@
-import { apiRequest } from "../../auth";
+import { apiRequest } from "../../lib/http";
 import type { CustomerRequest, RequestInput, RequestStatus } from "../../../shared/requests";
 
 export const listRequests = () => apiRequest<CustomerRequest[]>("requests");

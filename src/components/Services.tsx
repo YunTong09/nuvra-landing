@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { loadTools, type Tool } from "../api";
+import { loadTools } from "../features/tools/api";
+import type { Tool } from "../features/tools/types";
 import { Icon } from "./Icon";
 
 function ToolCard({ tool }: { tool: Tool }) {

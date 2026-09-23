@@ -1,9 +1,5 @@
-import { API_URL } from "./api";
-
-export type CurrentUser = { id: number; name: string; email: string; role: "user" | "admin" };
-export function spacePath(user: CurrentUser | null) {
-  return user ? user.role === "admin" ? "/admin" : "/dashboard" : "/login";
-}
+// Development uses the local Vite proxy; production uses same-origin Vercel Functions.
+export const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
 export async function apiRequest<T>(path: string, method = "GET", body?: object): Promise<T> {
   const response = await fetch(`${API_URL}/api/${path}`, {
@@ -19,11 +15,3 @@ export async function apiRequest<T>(path: string, method = "GET", body?: object)
   return result as T;
 }
 
-export async function currentUser() {
-  try {
-    const result = await apiRequest<{ user: CurrentUser }>("auth/me");
-    return result.user;
-  } catch {
-    return null;
-  }
-}

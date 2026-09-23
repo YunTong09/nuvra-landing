@@ -1,4 +1,4 @@
-import { spacePath } from "../auth";
+import { spacePath } from "../features/account/auth";
 import { useCurrentUser } from "../useCurrentUser";
 
 export function Hero() {

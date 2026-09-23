@@ -2,7 +2,8 @@ import { AccountOverview } from "./AccountOverview";
 import { NewRequestPage } from "../features/requests/NewRequestPage";
 import { RequestsPanel } from "../features/requests/RequestsPanel";
 import { useEffect, useState } from "react";
-import { apiRequest, currentUser, type CurrentUser } from "../auth";
+import { apiRequest } from "../lib/http";
+import { currentUser, type CurrentUser } from "../features/account/auth";
 import { Brand } from "./Icon";
 import { AccountDetailsForm } from "./AccountDetailsForm";
 

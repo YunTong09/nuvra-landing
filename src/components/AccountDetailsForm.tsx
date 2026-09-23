@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { apiRequest, type CurrentUser } from "../auth";
+import { apiRequest } from "../lib/http";
+import type { CurrentUser } from "../features/account/auth";
 
 type Props = {
   user: CurrentUser;

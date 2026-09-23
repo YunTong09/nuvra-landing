@@ -1,4 +1,4 @@
-import { API_URL } from "../api";
+import { apiRequest } from "../lib/http";
 import { useState, type FormEvent } from "react";
 
 export function CTA() {
@@ -21,19 +21,7 @@ export function CTA() {
     };
 
     try {
-      const response = await fetch(`${API_URL}/api/contact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(inquiry),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Could not send feedback");
-      }
+      await apiRequest("contact", "POST", inquiry);
 
       setStatusMessage("Thank you for sharing your feedback.");
       setStatusType("success");

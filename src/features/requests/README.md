@@ -38,7 +38,8 @@ The admin Requests tab renders `RequestsPanel` with `isAdmin` enabled. Administr
 ## Related modules
 
 - `shared/requests.ts` at the project root defines request types, allowed statuses, and display labels used by both frontend and backend.
-- `src/auth.ts` provides the shared HTTP helper and account/session functions.
+- `src/lib/http.ts` provides the shared HTTP helper.
+- `src/features/account/auth.ts` provides account/session functions.
 - `src/components/AccountPage.tsx` provides the customer page layout and account access checks.
 - `src/components/AccountOverview.tsx` contains the dashboard links to profile editing and request submission.
 - `src/components/Admin.tsx` provides the administrator page and Requests tab.

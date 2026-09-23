@@ -1,4 +1,4 @@
-import type { CurrentUser } from "../auth";
+import type { CurrentUser } from "../features/account/auth";
 
 export function AccountOverview({ user }: { user: CurrentUser }) {
   return <section className="account-card" aria-labelledby="profile-heading">

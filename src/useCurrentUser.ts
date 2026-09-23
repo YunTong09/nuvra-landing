@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { currentUser, type CurrentUser } from "./auth";
+import { currentUser, type CurrentUser } from "./features/account/auth";
 
 export function useCurrentUser() {
   const [user, setUser] = useState<CurrentUser | null | undefined>(undefined);

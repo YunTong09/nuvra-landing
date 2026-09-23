@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { apiRequest, spacePath, type CurrentUser } from "../auth";
+import { apiRequest } from "../lib/http";
+import { spacePath, type CurrentUser } from "../features/account/auth";
 import { Brand } from "./Icon";
 
 export function AuthPage() {
