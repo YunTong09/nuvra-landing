@@ -1,3 +1,6 @@
+import { registerRequests } from "./requests/routes.ts";
+import { postgresRequests } from "./requests/postgres.ts";
+import { postgresRequestSchema } from "./requests/schema.ts";
 import express, { type ErrorRequestHandler } from "express";
 import type { Pool } from "pg";
 import { registerPostgresAuth } from "./auth-postgres.ts";
@@ -65,6 +68,7 @@ export async function initializePostgres(pool: Pool) {
         window_start TIMESTAMPTZ NOT NULL DEFAULT now()
       );
     `);
+    await db.query(postgresRequestSchema);
     if (!exists.rows[0].table_name) {
       for (const [title, description] of initialTools) {
         await db.query("INSERT INTO tools (title, description) VALUES ($1, $2)", [title, description]);
@@ -119,6 +123,7 @@ export function createPostgresApp(db: Pool) {
   });
   app.use(express.json());
   registerPostgresAuth(app, db);
+  registerRequests(app, postgresRequests(db));
   app.get("/", (_req, res) => res.send("Nuvra backend is running"));
 
   app.post("/api/contact", async (req, res) => {

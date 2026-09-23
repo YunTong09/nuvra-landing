@@ -1,9 +1,14 @@
+import { AccountOverview } from "./AccountOverview";
+import { NewRequestPage } from "../features/requests/NewRequestPage";
+import { RequestsPanel } from "../features/requests/RequestsPanel";
 import { useEffect, useState } from "react";
 import { apiRequest, currentUser, type CurrentUser } from "../auth";
 import { Brand } from "./Icon";
 import { AccountDetailsForm } from "./AccountDetailsForm";
 
-export function AccountPage() {
+type AccountView = "dashboard" | "profile" | "new-request";
+
+export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [error, setError] = useState("");
 
@@ -30,6 +35,9 @@ export function AccountPage() {
     }
   }
 
+  const title = view === "profile" ? "Edit profile" : view === "new-request" ? "Submit a new request" :
+    user ? `Hello, ${user.name}` : "Your dashboard";
+
   return <>
     <a className="skip-link" href="#account-content">Skip to content</a>
     <header className="site-header"><div className="container nav-wrap">
@@ -42,9 +50,16 @@ export function AccountPage() {
     <main id="account-content" className="section account-page">
       <div className="container account-container">
         <p className="section-label">YOUR NUVRA DASHBOARD</p>
-        <h1>{user ? `Hello, ${user.name}` : "Your dashboard"}</h1>
-        {user ? <AccountDetailsForm user={user} onSaved={setUser} />
-          : <p role="status" className="account-loading">Checking your account…</p>}
+        <h1>{title}</h1>
+        {view !== "dashboard" && <p><a href="/dashboard">← Back to dashboard</a></p>}
+        {!user ? <p role="status" className="account-loading">Checking your account…</p> : <>
+          {view === "dashboard" && <><AccountOverview user={user} /><RequestsPanel /></>}
+          {view === "profile" && <>
+            <AccountDetailsForm user={user} onSaved={setUser} />
+            <p><a href="/dashboard">Done / return to dashboard</a></p>
+          </>}
+          {view === "new-request" && <NewRequestPage />}
+        </>}
         {error && <p className="auth-error" role="alert">{error}</p>}
       </div>
     </main>

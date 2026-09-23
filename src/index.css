@@ -797,3 +797,9 @@ p {
   .account-card { padding: 20px; }
   .account-nav { gap: 10px; }
 }
+
+.account-summary { display: grid; gap: 16px; }
+.account-summary dt { color: var(--text-muted); font-size: .875rem; margin-bottom: 4px; }
+.account-summary dd { margin: 0; overflow-wrap: anywhere; }
+.account-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 24px; }
+.account-card > .button { margin-top: 20px; }

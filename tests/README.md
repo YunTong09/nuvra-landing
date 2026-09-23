@@ -6,6 +6,7 @@ These tests exercise backend behaviour with temporary or in-memory data. They ve
 | --- | --- |
 | `auth.test.ts` | Registration, login, sessions, logout, profile updates, validation, login limits, and admin access with SQLite. |
 | `postgres-access.test.ts` | Session, profile update, and administrator checks on the PostgreSQL API path. |
+| `requests.test.ts` | Submission validation, server-assigned ownership/status, customer isolation, administrator status updates, request details, cross-origin rejection, and persistence. |
 | `tools.test.ts` | Public tool reads, admin tool writes, validation, persistence, and inquiries. |
 | `relationships.test.ts` | Client and subscription operations and database constraints. |
 | `vercel-routing.test.ts` | Original API path handling through the Vercel rewrite. |

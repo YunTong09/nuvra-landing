@@ -33,6 +33,10 @@ test("PostgreSQL API enforces sessions and administrator access", async () => {
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
   try {
+    assert.equal((await request("/api/requests")).status, 401);
+    assert.equal((await request("/api/requests", "POST", undefined, { subject: "Help", message: "Help me" })).status, 401);
+    assert.equal((await request("/api/requests/1/status", "PUT", userToken, { status: "completed" })).status, 403);
+    assert.equal((await request("/api/requests/1/status", "PUT", adminToken, { status: "invalid" })).status, 400);
     assert.equal((await request("/api/tools")).status, 200);
     assert.equal((await request("/api/clients")).status, 401);
     assert.equal((await request("/api/clients", "GET", userToken)).status, 403);

@@ -18,13 +18,14 @@ try {
       (SELECT count(*) FROM tools) AS tools,
       (SELECT count(*) FROM clients) AS clients,
       (SELECT count(*) FROM subscriptions) AS subscriptions,
-      (SELECT count(*) FROM users) AS users`);
-    const { inquiries, tools, clients, subscriptions, users } = counts.rows[0];
+      (SELECT count(*) FROM users) AS users,
+      (SELECT count(*) FROM customer_requests) AS customer_requests`);
+    const { inquiries, tools, clients, subscriptions, users, customer_requests } = counts.rows[0];
     if (Number(inquiries) || Number(clients) || Number(subscriptions) ||
-        Number(users) || Number(tools) !== 4)
+        Number(users) || Number(customer_requests) || Number(tools) !== 4)
       throw new Error("Neon database already has records. Migration requires a new empty project with only the four starter tools.");
     await target.query("DELETE FROM tools");
-    for (const table of ["inquiries", "tools", "clients", "subscriptions", "users"] as const) {
+    for (const table of ["inquiries", "tools", "clients", "subscriptions", "users", "customer_requests"] as const) {
       const exists = source.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?").get(table);
       if (!exists) continue;
       const rows = source.prepare(`SELECT * FROM ${table} ORDER BY id`).all() as Record<string, unknown>[];

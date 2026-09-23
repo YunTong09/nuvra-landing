@@ -52,6 +52,7 @@ export function Services() {
         <div className="section-heading">
           <p className="section-label">OUR TOOLS</p>
           <h2>Simple tools for everyday organisation.</h2>
+          <p>Need help with a service? <a href="/dashboard">Sign in to submit and track a request →</a></p>
         </div>
         {loading && <p role="status">Loading tools…</p>}
         {error && (

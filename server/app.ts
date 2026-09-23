@@ -1,3 +1,6 @@
+import { registerRequests } from "./requests/routes.ts";
+import { sqliteRequests } from "./requests/sqlite.ts";
+import { sqliteRequestSchema } from "./requests/schema.ts";
 import express, { type ErrorRequestHandler } from "express";
 import type Database from "better-sqlite3";
 import { registerRelationships } from "./relationships.ts";
@@ -35,6 +38,8 @@ export function createApp(database: Database.Database) {
 
   app.use(express.json());
   registerSqliteAuth(app, database);
+  database.exec(sqliteRequestSchema);
+  registerRequests(app, sqliteRequests(database));
 
   app.get("/", (_req, res) => {
     res.send("Nuvra backend is running");

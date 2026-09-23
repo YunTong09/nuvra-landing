@@ -14,6 +14,8 @@ export default function App() {
   if (path === "/admin")
     return <Admin />;
   if (path === "/login" || path === "/register") return <AuthPage />;
+  if (path === "/account/edit") return <AccountPage view="profile" />;
+  if (path === "/requests/new") return <AccountPage view="new-request" />;
   if (path === "/dashboard" || path === "/account") return <AccountPage />;
   return (
     <>

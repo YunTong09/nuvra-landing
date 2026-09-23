@@ -1,3 +1,4 @@
+import { RequestsPanel } from "../features/requests/RequestsPanel";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { API_URL, loadTools, type Tool } from "../api";
 import { ClientsAdmin } from "./ClientsAdmin";
@@ -58,13 +59,13 @@ export function Admin() {
           <p className="section-label">CONTENT MANAGEMENT</p>
           <h1>Manage Nuvra</h1>
           <p className="admin-description">
-            Manage your tools, clients, and subscriptions.
+            Manage your tools, clients, subscriptions, and customer requests.
           </p>
           <nav className="admin-navigation" aria-label="Admin tables">
             <a
               href="/admin"
               aria-current={
-                section !== "clients" && section !== "subscriptions"
+                section !== "clients" && section !== "subscriptions" && section !== "requests"
                   ? "page"
                   : undefined
               }
@@ -83,8 +84,11 @@ export function Admin() {
             >
               Subscriptions
             </a>
+            <a href="/admin?table=requests" aria-current={section === "requests" ? "page" : undefined}>Requests</a>
           </nav>
-          {section === "clients" ? (
+          {section === "requests" ? (
+            <RequestsPanel isAdmin />
+          ) : section === "clients" ? (
             <ClientsAdmin />
           ) : section === "subscriptions" ? (
             <SubscriptionsAdmin />
