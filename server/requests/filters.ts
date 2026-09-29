@@ -1,4 +1,4 @@
-import { requestStatuses, type RequestFilters, type RequestStatus } from "../../shared/requests.ts";
+import { requestStatuses, type RequestFilters, type RequestStatus } from "../../shared/requests.js";
 
 // Accept only scalar query parameters and real calendar dates.
 export function parseRequestFilters(query: Record<string, unknown>): RequestFilters {

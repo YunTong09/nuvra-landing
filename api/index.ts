@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { Pool } from "pg";
-import { createPostgresApp, initializePostgres } from "../server/postgres.ts";
+import { createPostgresApp, initializePostgres } from "../server/postgres.js";
 
 const databaseUrl = process.env.DATABASE_URL;
 const pool = databaseUrl ? new Pool({ connectionString: databaseUrl, max: 2 }) : null;

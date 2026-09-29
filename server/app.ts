@@ -1,11 +1,11 @@
-import { registerRequests } from "./requests/routes.ts";
-import { sqliteRequests } from "./requests/sqlite.ts";
-import { sqliteRequestSchema } from "./requests/schema.ts";
+import { registerRequests } from "./requests/routes.js";
+import { sqliteRequests } from "./requests/sqlite.js";
+import { sqliteRequestSchema } from "./requests/schema.js";
 import express, { type ErrorRequestHandler } from "express";
 import type Database from "better-sqlite3";
-import { registerRelationships } from "./relationships.ts";
-import { registerTools } from "./tools.ts";
-import { registerSqliteAuth } from "./auth-sqlite.ts";
+import { registerRelationships } from "./relationships.js";
+import { registerTools } from "./tools.js";
+import { registerSqliteAuth } from "./auth-sqlite.js";
 
 export function createApp(database: Database.Database) {
   const app = express();

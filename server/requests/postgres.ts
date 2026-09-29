@@ -1,6 +1,6 @@
-import { requestWhere } from "./filters.ts";
+import { requestWhere } from "./filters.js";
 import type { Pool } from "pg";
-import { requestSelect, type RequestRepository } from "./repository.ts";
+import { requestSelect, type RequestRepository } from "./repository.js";
 
 export function postgresRequests(db: Pool): RequestRepository {
   return {

@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import { Pool } from "pg";
-import { initializePostgres } from "./postgres.ts";
+import { initializePostgres } from "./postgres.js";
 
 const url = process.env.DATABASE_URL;
 const sourcePath = process.env.DATABASE_PATH || "server/voltix.db";

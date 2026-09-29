@@ -5,7 +5,8 @@ This folder contains the React website. Components display pages and send reques
 | Part | Responsibility |
 | --- | --- |
 | `main.tsx`, `App.tsx` | Start React and select the landing, auth, dashboard, employee, or admin page from the URL. |
-| `lib/http.ts` | Shared API base URL, HTTP requests, session credentials, and response/error handling. |
+| `lib/http.ts` | Shared API base URL, HTTP requests, and session credentials. |
+| `lib/api-response.ts` | Parses API responses, preserves backend validation messages, and shows readable errors when hosting returns plain text or HTML. |
 | `features/account/auth.ts`, `useCurrentUser.ts` | Account types, current-user lookup, and role-based **My space** destination. |
 | `features/employee/EmployeePage.tsx` | Employee workspace, session checks, logout, and shared request management. |
 | `features/account/WorkspaceIdentity.tsx`, `workspace.css` | Staff role/name/email header and distinct Admin/Employee dark themes. |

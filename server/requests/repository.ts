@@ -1,4 +1,4 @@
-import type { CustomerRequest, RequestInput, RequestStatus, RequestFilters } from "../../shared/requests.ts";
+import type { CustomerRequest, RequestInput, RequestStatus, RequestFilters } from "../../shared/requests.js";
 
 // Both databases implement the same operations; routes own validation and access rules.
 export interface RequestRepository {

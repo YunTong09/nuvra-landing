@@ -1,7 +1,7 @@
-import { searchWhere, validateSearch } from "../search.ts";
+import { searchWhere, validateSearch } from "../search.js";
 import type { Express } from "express";
 import type { Pool } from "pg";
-import { validId, routeId } from "./validation.ts";
+import { validId, routeId } from "./validation.js";
 
 const toolError = (title: unknown, description: unknown) => {
   if (typeof title !== "string" || typeof description !== "string" || !title.trim() || !description.trim())

@@ -1,11 +1,11 @@
-import type { UserRole } from "../shared/roles.ts";
+import type { UserRole } from "../shared/roles.js";
 import type { Express, Request, Response } from "express";
 import type { Pool } from "pg";
 import {
   clearSessionCookie, clientKey, dummyPasswordHash, hashPassword, newSession, normalizedEmail,
   profileError, registrationError, sameOriginMutation, sessionDurationMs, sessionToken,
   setSessionCookie, tokenHash, verifyPassword,
-} from "./auth-core.ts";
+} from "./auth-core.js";
 
 type User = { id: number; name: string; email: string; role: UserRole };
 const fullPath = (req: Request) => req.baseUrl + req.path;

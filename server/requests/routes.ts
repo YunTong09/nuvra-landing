@@ -1,8 +1,8 @@
-import { canManageRequests } from "../../shared/roles.ts";
-import { parseRequestFilters } from "./filters.ts";
+import { canManageRequests } from "../../shared/roles.js";
+import { parseRequestFilters } from "./filters.js";
 import { Router, type Express } from "express";
-import { requestStatuses, type RequestStatus } from "../../shared/requests.ts";
-import type { RequestRepository } from "./repository.ts";
+import { requestStatuses, type RequestStatus } from "../../shared/requests.js";
+import type { RequestRepository } from "./repository.js";
 
 export function registerRequests(app: Express, repository: RequestRepository) {
   const router = Router();

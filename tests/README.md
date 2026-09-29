@@ -4,6 +4,8 @@ These tests exercise backend behaviour with temporary or in-memory data. They ve
 
 | Test | What it checks |
 | --- | --- |
+| `deployment-imports.test.ts` | Compiles the API/backend/shared modules to JavaScript and starts the API in plain Node without TypeScript files or loaders, catching deployment import failures. Does not connect to Neon. |
+| `api-response.test.ts` | Plain-text/HTML server errors, JSON validation messages, successful responses, and empty logout responses. |
 | `auth.test.ts` | Registration, login, sessions, logout, profile updates, validation, login limits, and admin access with SQLite. |
 | `postgres-access.test.ts` | Session/profile checks and employee/admin request permissions and management restrictions through a stub PostgreSQL connection. |
 | `employee-access.test.ts` | Employee permissions, blocked role escalation, immediate role changes, and SQLite migration preserving accounts, sessions, requests, and ID sequence. |

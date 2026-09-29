@@ -1,12 +1,12 @@
-import { migrateSqliteUserRoles } from "./sqlite/user-roles.ts";
-import type { UserRole } from "../shared/roles.ts";
+import { migrateSqliteUserRoles } from "./sqlite/user-roles.js";
+import type { UserRole } from "../shared/roles.js";
 import type { Express, Response } from "express";
 import type Database from "better-sqlite3";
 import {
   clearSessionCookie, clientKey, dummyPasswordHash, hashPassword, newSession, normalizedEmail,
   profileError, registrationError, sameOriginMutation, sessionDurationMs, sessionToken,
   setSessionCookie, tokenHash, verifyPassword,
-} from "./auth-core.ts";
+} from "./auth-core.js";
 
 type User = { id: number; name: string; email: string; role: UserRole };
 

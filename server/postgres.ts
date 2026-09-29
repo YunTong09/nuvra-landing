@@ -1,16 +1,16 @@
 import express from "express";
 import type { Pool } from "pg";
-import { registerPostgresAuth } from "./auth-postgres.ts";
-import { registerRequests } from "./requests/routes.ts";
-import { postgresRequests } from "./requests/postgres.ts";
-import { registerPostgresContact } from "./postgres/contact.ts";
-import { registerPostgresTools } from "./postgres/tools.ts";
-import { registerPostgresClients } from "./postgres/clients.ts";
-import { registerPostgresSubscriptions } from "./postgres/subscriptions.ts";
-import { handlePostgresError } from "./postgres/errors.ts";
+import { registerPostgresAuth } from "./auth-postgres.js";
+import { registerRequests } from "./requests/routes.js";
+import { postgresRequests } from "./requests/postgres.js";
+import { registerPostgresContact } from "./postgres/contact.js";
+import { registerPostgresTools } from "./postgres/tools.js";
+import { registerPostgresClients } from "./postgres/clients.js";
+import { registerPostgresSubscriptions } from "./postgres/subscriptions.js";
+import { handlePostgresError } from "./postgres/errors.js";
 
 // Keep the existing import path for server startup, migration, and Vercel.
-export { initializePostgres } from "./postgres/schema.ts";
+export { initializePostgres } from "./postgres/schema.js";
 
 export function createPostgresApp(db: Pool) {
   const app = express();

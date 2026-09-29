@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import { Pool } from "pg";
-import { initializePostgres } from "./postgres/schema.ts";
-import { migrateSqliteUserRoles } from "./sqlite/user-roles.ts";
+import { initializePostgres } from "./postgres/schema.js";
+import { migrateSqliteUserRoles } from "./sqlite/user-roles.js";
 
 const email = process.argv[2]?.trim().toLowerCase();
 if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))

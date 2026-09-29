@@ -1,7 +1,7 @@
-import { requestWhere } from "./filters.ts";
+import { requestWhere } from "./filters.js";
 import type Database from "better-sqlite3";
-import type { CustomerRequest } from "../../shared/requests.ts";
-import { requestSelect, type RequestRepository } from "./repository.ts";
+import type { CustomerRequest } from "../../shared/requests.js";
+import { requestSelect, type RequestRepository } from "./repository.js";
 
 export function sqliteRequests(db: Database.Database): RequestRepository {
   return {

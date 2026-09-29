@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
-import { createApp } from "./app.ts";
+import { createApp } from "./app.js";
 import { Pool } from "pg";
-import { createPostgresApp, initializePostgres } from "./postgres.ts";
+import { createPostgresApp, initializePostgres } from "./postgres.js";
 
 const port = process.env.PORT || 3001;
 if (process.env.DATABASE_URL) {

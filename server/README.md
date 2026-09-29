@@ -19,6 +19,8 @@ This folder contains the Express API, database setup, and server-only account lo
 
 The online API entry point is `../api/index.ts`, which runs the PostgreSQL app as a Vercel Function. The local `voltix.db` file is development data, not source code.
 
+Backend relative imports use `.js` paths so they match the files emitted for the Vercel Node.js runtime. Source files remain TypeScript; local commands use `tsx`. The deployment import test checks that the compiled API can start without TypeScript source files.
+
 Registration always creates a regular user. Authenticated users can read and update their own name and email; only admins can write tools or access client and subscription management APIs. Public visitors can read tools and submit inquiries. Client/subscription records currently belong to the admin workflow and are not linked to customer login accounts.
 
 ## Customer requests module

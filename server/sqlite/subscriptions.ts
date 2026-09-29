@@ -1,7 +1,7 @@
-import { searchWhere, validateSearch } from "../search.ts";
+import { searchWhere, validateSearch } from "../search.js";
 import type { Express } from "express";
 import type Database from "better-sqlite3";
-import { validId } from "./validation.ts";
+import { validId } from "./validation.js";
 
 function validateSubscription(
   clientId: unknown,

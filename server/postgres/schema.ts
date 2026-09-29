@@ -1,6 +1,6 @@
-import { migratePostgresUserRoles } from "./user-roles.ts";
+import { migratePostgresUserRoles } from "./user-roles.js";
 import type { Pool } from "pg";
-import { postgresRequestSchema } from "../requests/schema.ts";
+import { postgresRequestSchema } from "../requests/schema.js";
 
 const initialTools = [
   ["Task Simplifier", "Turn a long or overwhelming task into smaller, clearer steps."],
