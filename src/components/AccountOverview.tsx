@@ -9,7 +9,7 @@ export function AccountOverview({ user }: { user: CurrentUser }) {
     </dl>
     <div className="account-actions">
       <a className="admin-secondary" href="/account/edit">Edit profile</a>
-      <a className="button" href="/requests/new">Submit a new request</a>
+      {user.role === "user" && <a className="button" href="/requests/new">Submit a new request</a>}
     </div>
   </section>;
 }

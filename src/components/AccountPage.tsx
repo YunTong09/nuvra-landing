@@ -1,9 +1,10 @@
+import { WorkspaceIdentity } from "../features/account/WorkspaceIdentity";
 import { AccountOverview } from "./AccountOverview";
 import { NewRequestPage } from "../features/requests/NewRequestPage";
 import { RequestsPanel } from "../features/requests/RequestsPanel";
 import { useEffect, useState } from "react";
 import { apiRequest } from "../lib/http";
-import { currentUser, type CurrentUser } from "../features/account/auth";
+import { currentUser, spacePath, type CurrentUser } from "../features/account/auth";
 import { Brand } from "./Icon";
 import { AccountDetailsForm } from "./AccountDetailsForm";
 
@@ -19,13 +20,16 @@ export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
       if (!active) return;
       if (!found) { window.location.replace("/login"); return; }
       if (found.role === "admin") { window.location.replace("/admin"); return; }
+      if (found.role === "employee" && view !== "profile") {
+        window.location.replace(spacePath(found)); return;
+      }
       if (window.location.pathname === "/account") {
         window.history.replaceState(null, "", "/dashboard");
       }
       setUser(found);
     });
     return () => { active = false; };
-  }, []);
+  }, [view]);
 
   async function logout() {
     try {
@@ -39,10 +43,11 @@ export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
   const title = view === "profile" ? "Edit profile" : view === "new-request" ? "Submit a new request" :
     user ? `Hello, ${user.name}` : "Your dashboard";
 
-  return <>
+  return <div className={user?.role === "employee" ? "staff-workspace staff-workspace--employee" : undefined}>
     <a className="skip-link" href="#account-content">Skip to content</a>
     <header className="site-header"><div className="container nav-wrap">
       <a href="/" aria-label="Nuvra home"><Brand /></a>
+      {user?.role === "employee" && <WorkspaceIdentity user={user} />}
       <nav className="account-nav" aria-label="Account navigation">
         <a href="/">Website</a>
         <button onClick={logout} disabled={!user}>Log out</button>
@@ -52,17 +57,17 @@ export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
       <div className="container account-container">
         <p className="section-label">YOUR NUVRA DASHBOARD</p>
         <h1>{title}</h1>
-        {view !== "dashboard" && <p><a href="/dashboard">← Back to dashboard</a></p>}
+        {view !== "dashboard" && <p><a href={spacePath(user)}>← Back to dashboard</a></p>}
         {!user ? <p role="status" className="account-loading">Checking your account…</p> : <>
           {view === "dashboard" && <><AccountOverview user={user} /><RequestsPanel /></>}
           {view === "profile" && <>
             <AccountDetailsForm user={user} onSaved={setUser} />
-            <p><a href="/dashboard">Done / return to dashboard</a></p>
+            <p><a href={spacePath(user)}>Done / return to dashboard</a></p>
           </>}
           {view === "new-request" && <NewRequestPage />}
         </>}
         {error && <p className="auth-error" role="alert">{error}</p>}
       </div>
     </main>
-  </>;
+  </div>;
 }

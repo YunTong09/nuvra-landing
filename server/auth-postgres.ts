@@ -1,3 +1,4 @@
+import type { UserRole } from "../shared/roles.ts";
 import type { Express, Request, Response } from "express";
 import type { Pool } from "pg";
 import {
@@ -6,7 +7,7 @@ import {
   setSessionCookie, tokenHash, verifyPassword,
 } from "./auth-core.ts";
 
-type User = { id: number; name: string; email: string; role: "user" | "admin" };
+type User = { id: number; name: string; email: string; role: UserRole };
 const fullPath = (req: Request) => req.baseUrl + req.path;
 const publicRead = (req: Request) => req.method === "GET" && fullPath(req) === "/api/tools";
 const adminPath = (req: Request) =>

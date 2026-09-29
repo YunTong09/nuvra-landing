@@ -5,3 +5,5 @@
 `Admin.tsx` handles administrator access, logout, navigation, and selecting which management feature to display. It imports `ToolsAdmin` for the Tools tab.
 
 `api.ts` provides tool read/save/delete calls through `src/lib/http.ts`. `types.ts` defines the `Tool` record. Backend permissions continue to protect all tool mutations. The public tools display remains in `src/components/Services.tsx`.
+
+The management page uses the shared `features/search/SearchBar.tsx`. Search and clear actions reload database results through the feature API with a `q` query parameter; matching is performed on the backend.

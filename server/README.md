@@ -27,9 +27,9 @@ Registration always creates a regular user. Authenticated users can read and upd
 | Endpoint | Access | Purpose |
 | --- | --- | --- |
 | `POST /api/requests` | Signed-in user | Submit subject and message; the server assigns owner and Pending status. |
-| `GET /api/requests` | Signed-in user | Customers see their own records; administrators see all records. |
-| `GET /api/requests/:id` | Owner or administrator | Read complete request details. |
-| `PUT /api/requests/:id/status` | Administrator | Update status using `{ "status": "in_progress" }`. |
+| `GET /api/requests` | Signed-in user | Customers see their own records; employees and administrators see all records. |
+| `GET /api/requests/:id` | Owner, employee, or administrator | Read complete request details. |
+| `PUT /api/requests/:id/status` | Employee or administrator | Update status using `{ "status": "in_progress" }`. |
 
 Subjects allow 1–150 characters and messages allow 1–5000 after trimming. Status values are `pending`, `in_progress`, `completed`, and `cancelled`. Invalid input returns 400, missing sessions 401, unauthorized status writes 403, and missing or other customers' details 404. Customer name and email reflect the current account profile. Existing inquiries are not migrated into requests because they have no verified account ownership. The SQLite-to-Neon migration includes customer requests after users.
 
@@ -72,3 +72,34 @@ For reading the backend, start with `index.ts`, then `app.ts` (SQLite) or `postg
 `relationships.ts` is the entry point called by `app.ts`. It first calls `sqlite/schema.ts` to create the client and subscription tables and index, then registers `sqlite/clients.ts` and `sqlite/subscriptions.ts`. Each route module keeps its feature-specific validation and SQL together. `sqlite/validation.ts` contains their shared record-ID check.
 
 The tools table must be initialized before these modules, because subscriptions reference tools. `app.ts` preserves this startup order. The authentication middleware is registered before these routes and still protects client and subscription management.
+
+
+## Task 8 — Search and Filtering
+
+Search is available in the admin **Requests** tab and the customer dashboard's **My requests** section. Enter part of a subject, request details, or request ID. Administrators can also search customer names and email addresses.
+
+Combine the search with **Status**, **Submitted from**, and **Submitted through**, then select **Search**. Date boundaries use UTC and include both selected days. Select **Clear filters** to reset all criteria. **Refresh requests** reloads the currently applied search. Status updates also re-run the applied query.
+
+Results come from `GET /api/requests?q=routine&status=pending&from=2026-09-01&to=2026-09-30`. Both SQLite and PostgreSQL apply the conditions in the database using parameterized queries. Customers remain restricted to their own requests by their session, regardless of query parameters. Search text is a literal substring; `%` and `_` are not treated as user-supplied wildcard operators.
+
+`RequestSearch.tsx` owns the search form, `RequestsPanel.tsx` loads the results, and `RequestList.tsx` renders them without local filtering. `server/requests/filters.ts` validates query parameters and builds the database conditions. Shared filter types live in `shared/requests.ts`.
+
+
+### Search across all admin tabs
+
+- **Tools:** search title, description, or tool ID.
+- **Clients:** search name, email, or client ID.
+- **Subscriptions:** search customer name/email, tool title, subscription status, or subscription ID.
+- **Requests:** search request content/ID or customer information, with status and date filters.
+
+Select **Search** to query the backend, or **Clear search** to restore the list. All three additional list endpoints accept `q`: `/api/tools?q=focus`, `/api/clients?q=alice`, and `/api/subscriptions?q=cancelled`. SQLite and PostgreSQL use bound parameters and treat wildcard characters as literal search text. Client and subscription endpoints still require an administrator session.
+
+`src/features/search/SearchBar.tsx` provides the shared keyword-search interface. `server/search.ts` validates the query and builds SQL conditions for these three sections. Request-specific multi-criterion filtering remains in `server/requests/filters.ts`. Subscription form options are loaded without the list search so all clients and tools remain selectable.
+
+## Task 9 — Employee access
+
+The `user`, `employee`, and `admin` roles come from the database-backed session. `shared/roles.ts` defines the role type and the shared request-management permission. Employees and administrators can list/search all requests, read their details, and update status; customers can only read their own requests and cannot change status. Tools writes and all Client/Subscription management remain administrator-only. Profile updates cannot change roles.
+
+`sqlite/user-roles.ts` upgrades the original users table constraint transactionally while preserving user IDs, sessions, requests, and the ID sequence. `postgres/user-roles.ts` upgrades the PostgreSQL constraint within the existing startup transaction and lock. Both upgrades run during normal initialization.
+
+Use `npm run employee:grant -- employee@example.com` after registering the account. `grant-employee.ts` selects PostgreSQL with `DATABASE_URL`, otherwise SQLite with `DATABASE_PATH` (default `server/voltix.db`). It upgrades the schema if needed and only grants the role to customer or existing employee accounts. Run it only in a trusted backend environment against the intended database. It cannot demote administrators.

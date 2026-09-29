@@ -6,11 +6,12 @@ This folder contains the frontend for submitting, viewing, and managing customer
 
 | File | Purpose |
 | --- | --- |
-| `RequestsPanel.tsx` | Loads request history, handles loading and error states, provides refresh controls, and coordinates the request list. Used by both the customer dashboard and the admin Requests tab. |
+| `RequestsPanel.tsx` | Loads request history, handles loading and error states, provides refresh controls, and coordinates the request list. Used by the customer dashboard, employee workspace, and admin Requests tab. |
 | `NewRequestPage.tsx` | Displays the submission form on `/requests/new`. After a successful submission, shows the request reference and a link back to the dashboard. |
 | `RequestForm.tsx` | Manages the subject and request details fields, placeholder guidance, submission state, and feedback messages. Calls the submission API and notifies its parent when a request is created. |
-| `RequestList.tsx` | Displays request summaries, filters them by status, and tracks which request is selected. Opens `RequestDetails` when the user selects **View details**. |
-| `RequestDetails.tsx` | Fetches and displays a request's full content, status, and timestamps. For administrators, also displays customer information and controls for saving a new status. Notifies the parent when a request is updated. |
+| `RequestSearch.tsx` | Provides keyword, status, and submitted-date controls, with Search and Clear filters actions. |
+| `RequestList.tsx` | Displays backend-filtered request summaries and tracks which request is selected. Opens `RequestDetails` when the user selects **View details**. |
+| `RequestDetails.tsx` | Fetches and displays a request's full content, status, and timestamps. For employees and administrators, also displays customer information and controls for saving a new status. Notifies the parent when a request is updated. |
 | `api.ts` | Provides typed functions for listing requests, fetching one request, submitting a request, and updating its status. Uses the existing `apiRequest` helper for HTTP communication. |
 | `requests.css` | Defines feature-specific styles, including status badges, request details, filters, and form presentation. |
 
@@ -31,7 +32,7 @@ Components → api.ts → Backend → Database
 
 The customer dashboard displays request history without an open submission form. The **Submit a new request** button opens a separate page. After submission, the customer can return to the dashboard to track progress.
 
-The admin Requests tab renders `RequestsPanel` with `isAdmin` enabled. Administrators can review details and change a request's status. After a successful update, the saved record is passed back to the panel so the list reflects the change.
+The admin Requests tab and employee workspace render `RequestsPanel` with `canManageRequests` enabled. Employees and administrators can review details and change a request's status. After a successful update, the saved record is passed back to the panel so the list reflects the change.
 
 **Refresh requests** reloads the history from the backend. Updates made in another browser or session are not pushed to an already-open page automatically.
 
@@ -49,13 +50,15 @@ The admin Requests tab renders `RequestsPanel` with `isAdmin` enabled. Administr
 
 Customers must sign in to submit requests and can only read their own records. Administrators can read all requests and update their status. New requests start as **Pending**; the other statuses are **In progress**, **Completed**, and **Cancelled**.
 
-The frontend shows controls appropriate to the current view, but the backend enforces authentication, ownership, and administrator permissions. Hiding a button is not an access-control check.
+The frontend shows controls appropriate to the current view, but the backend enforces authentication, ownership, and role permissions. Hiding a button is not an access-control check.
 
 ## Where to make changes
 
 - To change form fields or placeholder text, edit `RequestForm.tsx`. Changes to stored fields also require updates to shared types and backend validation/schema.
-- To change list filtering or summaries, edit `RequestList.tsx`.
+- To change search controls, edit `RequestSearch.tsx`; query validation and database filtering live in `server/requests/filters.ts`. To change result summaries, edit `RequestList.tsx`.
 - To change the details view or status controls, edit `RequestDetails.tsx`.
 - To change the submission confirmation, edit `NewRequestPage.tsx`.
 - To change HTTP endpoints, edit `api.ts` and the corresponding backend routes.
 - To change feature styling, edit `requests.css`.
+
+Search and filters run on the backend for customers, employees, and administrators. `RequestsPanel` keeps the applied filters and ignores outdated responses when a newer search starts.

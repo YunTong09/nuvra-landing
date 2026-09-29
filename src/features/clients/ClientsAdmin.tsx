@@ -1,3 +1,4 @@
+import { SearchBar } from "../search/SearchBar";
 import { ClientForm } from "./ClientForm";
 import { ClientList } from "./ClientList";
 import { listClients, saveClient, deleteClient } from "./api";
@@ -6,6 +7,8 @@ import type { Client } from "./types";
 
 export function ClientsAdmin() {
   const [clients, setClients] = useState<Client[]>([]);
+  const [query, setQuery] = useState("");
+  const [reload, setReload] = useState(0);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -14,7 +17,7 @@ export function ClientsAdmin() {
   const [showForm, setShowForm] = useState(false);
   useEffect(() => {
     let cancelled = false;
-    listClients()
+    listClients(query)
       .then((items) => {
         if (!cancelled) setClients(items);
       })
@@ -27,17 +30,15 @@ export function ClientsAdmin() {
     return () => {
       cancelled = true;
     };
-  }, []);
-  async function refresh() {
+  }, [query, reload]);
+  function refresh() {
     setLoading(true);
     setError("");
-    try {
-      setClients(await listClients());
-    } catch {
-      setError("Could not load clients. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    setReload(value => value + 1);
+  }
+  function search(value: string) {
+    setQuery(value);
+    refresh();
   }
   function openForm(client: Client | null) {
     setEditing(client);
@@ -53,14 +54,10 @@ export function ClientsAdmin() {
     setError("");
     setNotice("");
     try {
-      const saved = await saveClient(editing?.id ?? null, {
+      await saveClient(editing?.id ?? null, {
         name: String(fields.get("name") ?? ""), email: String(fields.get("email") ?? ""),
       });
-      setClients((items) =>
-        editing
-          ? items.map((item) => (item.id === saved.id ? saved : item))
-          : [...items, saved],
-      );
+      refresh();
       setShowForm(false);
       setNotice(editing ? "Client updated." : "Client added.");
     } catch (error) {
@@ -97,6 +94,8 @@ export function ClientsAdmin() {
   }
   return (
     <section aria-label="Clients">
+      <SearchBar label="Search clients" placeholder="Name, email or client ID" disabled={busy} onSearch={search} />
+      {!loading && !error && <p role="status">{clients.length} results found.</p>}
       <div className="admin-actions">
         <button
           className="button"
@@ -129,7 +128,7 @@ export function ClientsAdmin() {
         <p role="status">Loading clients…</p>
       ) : clients.length === 0 && !error ? (
         <p className="admin-description">
-          No clients yet. Add a client before creating a subscription.
+          No clients found. Try another search or clear the search.
         </p>
       ) : (
         <ClientList clients={clients} busy={busy} onEdit={openForm} onDelete={remove} />

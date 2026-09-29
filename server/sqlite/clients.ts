@@ -1,3 +1,4 @@
+import { searchWhere, validateSearch } from "../search.ts";
 import type { Express } from "express";
 import type Database from "better-sqlite3";
 import { validId } from "./validation.ts";
@@ -15,9 +16,10 @@ function validateClient(name: unknown, email: unknown) {
 }
 
 export function registerSqliteClients(app: Express, db: Database.Database) {
-  app.get("/api/clients", (_req, res) => {
+  app.get("/api/clients", validateSearch, (_req, res) => {
     res.set("Cache-Control", "no-store");
-    res.json(db.prepare("SELECT * FROM clients ORDER BY id").all());
+    const { where, values } = searchWhere(res.locals.search, ["name", "email", "CAST(id AS TEXT)"], "sqlite");
+    res.json(db.prepare("SELECT * FROM clients" + where + " ORDER BY id").all(...values));
   });
   app.post("/api/clients", (req, res) => {
     const { name, email } = req.body ?? {};

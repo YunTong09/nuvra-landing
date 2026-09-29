@@ -1,0 +1,83 @@
+/* Staff workspaces share components, with a distinct palette for each role. */
+.staff-workspace {
+  --workspace-bg: #0c1211;
+  --workspace-surface: #15221e;
+  --workspace-accent: #78dfb5;
+  --workspace-glow: #1b3a2e;
+  --text-muted: #bccbc4;
+  --border: #3b5148;
+  --bg-grey: #1d3027;
+  --accent-dark: var(--workspace-accent);
+  min-height: 100vh;
+  color: var(--text-light);
+  background: var(--workspace-bg);
+  color-scheme: dark;
+}
+.staff-workspace--employee {
+  --workspace-bg: #0e1b2b;
+  --workspace-surface: #172b40;
+  --workspace-accent: #91c9ff;
+  --workspace-glow: #244c69;
+  --text-muted: #bfcede;
+  --border: #405d77;
+  --bg-grey: #20384e;
+}
+.staff-workspace .site-header {
+  background: var(--workspace-bg);
+  border-bottom: 2px solid var(--workspace-accent);
+}
+.staff-workspace .nav-wrap { flex-wrap: wrap; padding-block: 12px; gap: 16px 24px; }
+.workspace-identity { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; min-width: 0; }
+.workspace-role {
+  padding: 5px 12px;
+  border: 1px solid var(--workspace-accent);
+  border-radius: 999px;
+  background: var(--workspace-surface);
+  color: var(--workspace-accent);
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+.workspace-account { font-size: .875rem; overflow-wrap: anywhere; min-width: 0; }
+.workspace-account > span { display: block; color: var(--text-muted); font-size: .8rem; }
+.staff-workspace .admin-page,
+.staff-workspace .account-page {
+  background: radial-gradient(ellipse at top right, var(--workspace-glow), transparent 65%), var(--workspace-bg);
+}
+.staff-workspace .account-card,
+.staff-workspace .request-search,
+.staff-workspace .request-details {
+  background: var(--workspace-surface);
+  border-color: var(--border);
+}
+.staff-workspace .admin-secondary,
+.staff-workspace .admin-navigation a:not([aria-current="page"]) {
+  background: var(--workspace-surface);
+  color: var(--text-light);
+}
+.staff-workspace .admin-secondary:hover,
+.staff-workspace .admin-navigation a:hover { border-color: var(--workspace-accent); }
+.staff-workspace main input,
+.staff-workspace main select,
+.staff-workspace main textarea {
+  background: var(--workspace-bg);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font: inherit;
+}
+.staff-workspace input::placeholder,
+.staff-workspace textarea::placeholder { color: var(--text-muted); opacity: 1; }
+.staff-workspace :is(input, select, textarea, button, a):focus-visible {
+  outline: 2px solid var(--workspace-accent);
+  outline-offset: 3px;
+}
+.staff-workspace .admin-error,
+.staff-workspace .auth-error,
+.staff-workspace .admin-delete { color: #ffb4b4; }
+.staff-workspace .admin-notice,
+.staff-workspace .account-notice { color: #78dfb5; }
+@media (max-width: 600px) {
+  .staff-workspace .workspace-identity { order: 3; flex-basis: 100%; padding-bottom: 4px; }
+}

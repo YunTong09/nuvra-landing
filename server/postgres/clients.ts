@@ -1,3 +1,4 @@
+import { searchWhere, validateSearch } from "../search.ts";
 import type { Express } from "express";
 import type { Pool } from "pg";
 import { validId, routeId } from "./validation.ts";
@@ -11,9 +12,10 @@ const clientError = (name: unknown, email: unknown) => {
   return "";
 };
 export function registerPostgresClients(app: Express, db: Pool) {
-  app.get("/api/clients", async (_req, res) => {
+  app.get("/api/clients", validateSearch, async (_req, res) => {
     res.set("Cache-Control", "no-store");
-    res.json((await db.query("SELECT * FROM clients ORDER BY id")).rows);
+    const { where, values } = searchWhere(res.locals.search, ["name", "email", "CAST(id AS TEXT)"], "postgres");
+    res.json((await db.query("SELECT * FROM clients" + where + " ORDER BY id", values)).rows);
   });
   app.post("/api/clients", async (req, res) => {
     const { name, email } = req.body ?? {};

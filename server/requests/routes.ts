@@ -1,3 +1,5 @@
+import { canManageRequests } from "../../shared/roles.ts";
+import { parseRequestFilters } from "./filters.ts";
 import { Router, type Express } from "express";
 import { requestStatuses, type RequestStatus } from "../../shared/requests.ts";
 import type { RequestRepository } from "./repository.ts";
@@ -14,9 +16,15 @@ export function registerRequests(app: Express, repository: RequestRepository) {
       return res.status(400).json({ error: "Invalid request ID." });
     next();
   });
-  router.get("/", async (_req, res) => {
+  router.get("/", async (req, res) => {
+    let filters;
+    try {
+      filters = parseRequestFilters(req.query);
+    } catch (error) {
+      return res.status(400).json({ error: (error as Error).message });
+    }
     const user = res.locals.user;
-    res.json(await repository.list(user.role === "admin" ? undefined : user.id));
+    res.json(await repository.list(canManageRequests(user.role) ? undefined : user.id, filters));
   });
   router.post("/", async (req, res) => {
     const { subject, message } = req.body ?? {};
@@ -30,13 +38,13 @@ export function registerRequests(app: Express, repository: RequestRepository) {
   });
   router.get("/:id", async (req, res) => {
     const user = res.locals.user;
-    const record = await repository.find(Number(req.params.id), user.role === "admin" ? undefined : user.id);
+    const record = await repository.find(Number(req.params.id), canManageRequests(user.role) ? undefined : user.id);
     if (!record) return res.status(404).json({ error: "Request not found." });
     res.json(record);
   });
   router.put("/:id/status", async (req, res) => {
-    if (res.locals.user.role !== "admin")
-      return res.status(403).json({ error: "Administrator access required." });
+    if (!canManageRequests(res.locals.user.role))
+      return res.status(403).json({ error: "Employee or administrator access required." });
     const status = req.body?.status;
     if (!requestStatuses.includes(status))
       return res.status(400).json({ error: "Choose a valid request status." });

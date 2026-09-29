@@ -14,3 +14,10 @@ export type CustomerRequest = RequestInput & {
   created_at: string;
   updated_at: string;
 };
+
+export type RequestFilters = {
+  q?: string;
+  status?: RequestStatus;
+  from?: string;
+  to?: string;
+};

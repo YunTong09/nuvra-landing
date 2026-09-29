@@ -9,3 +9,5 @@
 | `types.ts` | Defines the feature's record type. |
 
 The parent owns mutation state and feedback. The form is keyed by record ID so switching records resets its fields. Existing shared admin styles remain in `src/styles/admin.css`; the backend enforces administrator permissions and database relationships.
+
+The management page uses the shared `features/search/SearchBar.tsx`. Search and clear actions reload database results through the feature API with a `q` query parameter; matching is performed on the backend.

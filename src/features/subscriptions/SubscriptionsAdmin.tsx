@@ -1,3 +1,4 @@
+import { SearchBar } from "../search/SearchBar";
 import { SubscriptionForm } from "./SubscriptionForm";
 import { SubscriptionList } from "./SubscriptionList";
 import { loadSubscriptionData, saveSubscription, deleteSubscription } from "./api";
@@ -10,6 +11,8 @@ export function SubscriptionsAdmin() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
+  const [query, setQuery] = useState("");
+  const [reload, setReload] = useState(0);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -18,7 +21,7 @@ export function SubscriptionsAdmin() {
   const [showForm, setShowForm] = useState(false);
   useEffect(() => {
     let cancelled = false;
-    loadSubscriptionData()
+    loadSubscriptionData(query)
       .then(([records, people, offerings]) => {
         if (!cancelled) {
           setSubscriptions(records);
@@ -36,20 +39,15 @@ export function SubscriptionsAdmin() {
     return () => {
       cancelled = true;
     };
-  }, []);
-  async function refresh() {
+  }, [query, reload]);
+  function refresh() {
     setLoading(true);
     setError("");
-    try {
-      const [records, people, offerings] = await loadSubscriptionData();
-      setSubscriptions(records);
-      setClients(people);
-      setTools(offerings);
-    } catch {
-      setError("Could not load subscriptions. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    setReload(value => value + 1);
+  }
+  function search(value: string) {
+    setQuery(value);
+    refresh();
   }
   function openForm(record: Subscription | null) {
     setEditing(record);
@@ -65,16 +63,12 @@ export function SubscriptionsAdmin() {
     setError("");
     setNotice("");
     try {
-      const saved = await saveSubscription(editing?.id ?? null, {
+      await saveSubscription(editing?.id ?? null, {
         client_id: Number(fields.get("client_id")),
         tool_id: Number(fields.get("tool_id")),
         status: String(fields.get("status")) as Subscription["status"],
       });
-      setSubscriptions((items) =>
-        editing
-          ? items.map((item) => (item.id === saved.id ? saved : item))
-          : [...items, saved],
-      );
+      refresh();
       setShowForm(false);
       setNotice(editing ? "Subscription updated." : "Subscription added.");
     } catch (error) {
@@ -115,6 +109,8 @@ export function SubscriptionsAdmin() {
   }
   return (
     <section aria-label="Subscriptions">
+      <SearchBar label="Search subscriptions" placeholder="Customer name, email, tool, status or subscription ID" disabled={busy} onSearch={search} />
+      {!loading && !error && <p role="status">{subscriptions.length} results found.</p>}
       <div className="admin-actions">
         <button
           className="button"
@@ -151,7 +147,7 @@ export function SubscriptionsAdmin() {
       {loading ? (
         <p role="status">Loading subscriptions…</p>
       ) : subscriptions.length === 0 && !error ? (
-        <p className="admin-description">No subscriptions yet.</p>
+        <p className="admin-description">No subscriptions found. Try another search or clear the search.</p>
       ) : (
         <SubscriptionList subscriptions={subscriptions} busy={busy} onEdit={openForm} onDelete={remove} />
       )}

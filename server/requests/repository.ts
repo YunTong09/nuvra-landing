@@ -1,8 +1,8 @@
-import type { CustomerRequest, RequestInput, RequestStatus } from "../../shared/requests.ts";
+import type { CustomerRequest, RequestInput, RequestStatus, RequestFilters } from "../../shared/requests.ts";
 
 // Both databases implement the same operations; routes own validation and access rules.
 export interface RequestRepository {
-  list(userId?: number): Promise<CustomerRequest[]>;
+  list(userId?: number, filters?: RequestFilters): Promise<CustomerRequest[]>;
   find(id: number, userId?: number): Promise<CustomerRequest | undefined>;
   create(userId: number, input: RequestInput): Promise<CustomerRequest>;
   updateStatus(id: number, status: RequestStatus): Promise<CustomerRequest | undefined>;

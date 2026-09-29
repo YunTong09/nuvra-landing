@@ -1,9 +1,12 @@
+import { SearchBar } from "../search/SearchBar";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { loadTools, saveTool as persistTool, deleteTool as removeTool } from "./api";
 import type { Tool } from "./types";
 
 export function ToolsAdmin() {
   const [tools, setTools] = useState<Tool[]>([]);
+  const [query, setQuery] = useState("");
+  const [reload, setReload] = useState(0);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -15,22 +18,18 @@ export function ToolsAdmin() {
   const titleInput = useRef<HTMLInputElement>(null);
   const addButton = useRef<HTMLButtonElement>(null);
 
-  async function refreshTools() {
+  function refreshTools() {
     setLoading(true);
     setError("");
-    try {
-      setTools(await loadTools());
-    } catch {
-      setError(
-        "Could not load tools. Check that the backend is running, then try again.",
-      );
-    } finally {
-      setLoading(false);
-    }
+    setReload(value => value + 1);
+  }
+  function search(value: string) {
+    setQuery(value);
+    refreshTools();
   }
   useEffect(() => {
     let cancelled = false;
-    loadTools()
+    loadTools(query)
       .then((items) => {
         if (!cancelled) setTools(items);
       })
@@ -43,7 +42,7 @@ export function ToolsAdmin() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [query, reload]);
   useEffect(() => {
     if (showForm) titleInput.current?.focus();
   }, [showForm, editingId]);
@@ -73,12 +72,8 @@ export function ToolsAdmin() {
     setError("");
     setNotice("");
     try {
-      const saved = await persistTool(editingId, { title, description });
-      setTools((current) =>
-        editingId === null
-          ? [...current, saved]
-          : current.map((tool) => (tool.id === saved.id ? saved : tool)),
-      );
+      await persistTool(editingId, { title, description });
+      refreshTools();
       setNotice(editingId === null ? "Tool added." : "Tool updated.");
       closeForm();
     } catch (error) {
@@ -120,6 +115,8 @@ export function ToolsAdmin() {
 
   return (
     <section aria-label="Tools">
+      <SearchBar label="Search tools" placeholder="Title, description or tool ID" disabled={busy} onSearch={search} />
+      {!loading && !error && <p role="status">{tools.length} results found.</p>}
       <button
         ref={addButton}
         className="button"
@@ -191,7 +188,7 @@ export function ToolsAdmin() {
               Refresh list
             </button>
             {tools.length === 0 && !error && (
-              <p>No tools yet. Add your first tool above.</p>
+              <p>No tools found. Try another search or clear the search.</p>
             )}
             {tools.map((tool) => (
               <article className="admin-item" key={tool.id}>

@@ -1,13 +1,14 @@
+import { requestWhere } from "./filters.ts";
 import type Database from "better-sqlite3";
 import type { CustomerRequest } from "../../shared/requests.ts";
 import { requestSelect, type RequestRepository } from "./repository.ts";
 
 export function sqliteRequests(db: Database.Database): RequestRepository {
   return {
-    async list(userId) {
-      const where = userId === undefined ? "" : " WHERE customer_requests.user_id = ?";
+    async list(userId, filters = {}) {
+      const { where, values } = requestWhere(filters, userId, "sqlite");
       return db.prepare(requestSelect + where + " ORDER BY customer_requests.id DESC")
-        .all(...(userId === undefined ? [] : [userId])) as CustomerRequest[];
+        .all(...values) as CustomerRequest[];
     },
     async find(id, userId) {
       const where = userId === undefined ? "" : " AND customer_requests.user_id = ?";

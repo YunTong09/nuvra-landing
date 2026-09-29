@@ -4,7 +4,7 @@ This folder contains the React website. Components display pages and send reques
 
 | Part | Responsibility |
 | --- | --- |
-| `main.tsx`, `App.tsx` | Start React and select the landing, auth, dashboard, or admin page from the URL. |
+| `main.tsx`, `App.tsx` | Start React and select the landing, auth, dashboard, employee, or admin page from the URL. |
 | `lib/http.ts` | Shared API base URL, HTTP requests, session credentials, and response/error handling. |
 | `features/account/auth.ts`, `useCurrentUser.ts` | Account types, current-user lookup, and role-based **My space** destination. |
 | `features/*/api.ts`, `features/*/types.ts` | Feature-specific endpoints and record types. |
@@ -18,9 +18,9 @@ Visitors see login and registration links on the landing page; signed-in users s
 
 ## Customer requests module
 
-`features/requests/RequestsPanel.tsx` loads the history and coordinates the feature. `RequestForm.tsx` submits requests, `RequestList.tsx` filters and selects them, and `RequestDetails.tsx` loads details and provides the administrator status editor. `api.ts` contains the request endpoints; `requests.css` keeps feature styling separate. Shared types and status labels live in `shared/requests.ts` at the project root.
+`features/requests/RequestsPanel.tsx` loads the history and coordinates the feature. `RequestForm.tsx` submits requests, `RequestList.tsx` displays and selects them, and `RequestDetails.tsx` loads details and provides the employee/administrator status editor. `api.ts` contains the request endpoints; `requests.css` keeps feature styling separate. Shared types and status labels live in `shared/requests.ts` at the project root.
 
-The customer dashboard shows a read-only `AccountOverview` and request history. **Edit profile** opens `/account/edit`; **Submit a new request** opens `/requests/new`, where `NewRequestPage` shows the form and submission confirmation. The admin Requests tab uses the same list and details components with status management enabled. Backend checks enforce ownership and administrator privileges independently of these UI controls.
+The customer dashboard shows a read-only `AccountOverview` and request history. **Edit profile** opens `/account/edit`; **Submit a new request** opens `/requests/new`, where `NewRequestPage` shows the form and submission confirmation. The admin Requests tab and `/employee` workspace use the same list and details components with status management enabled. `features/employee/EmployeePage.tsx` owns the employee page, while `shared/roles.ts` defines roles and request-management permissions. Backend checks enforce ownership and role permissions independently of these UI controls.
 
 ## Tools management module
 

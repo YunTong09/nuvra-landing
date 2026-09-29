@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { getRequest, updateRequestStatus } from "./api";
 import { requestStatuses, requestStatusLabels, type CustomerRequest, type RequestStatus } from "../../../shared/requests";
 
-export function RequestDetails({ id, isAdmin, onUpdated }: {
-  id: number; isAdmin: boolean; onUpdated: (request: CustomerRequest) => void;
+export function RequestDetails({ id, canManageRequests, onUpdated }: {
+  id: number; canManageRequests: boolean; onUpdated: (request: CustomerRequest) => void;
 }) {
   const [record, setRecord] = useState<CustomerRequest | null>(null);
   const [status, setStatus] = useState<RequestStatus>("pending");
@@ -41,12 +41,12 @@ export function RequestDetails({ id, isAdmin, onUpdated }: {
   return <section className="request-details" aria-label={`Request ${id} details`}>
     {loading ? <p role="status">Loading request details…</p> : record && <>
       <h3>Request #{record.id}: {record.subject}</h3>
-      {isAdmin && <p>From {record.customer_name} · {record.customer_email}</p>}
+      {canManageRequests && <p>From {record.customer_name} · {record.customer_email}</p>}
       <p><strong>Status:</strong> {requestStatusLabels[record.status]}</p>
       <p className="request-message">{record.message}</p>
       <p className="admin-record-meta">Submitted: {new Date(record.created_at).toLocaleString()}<br />
         Last updated: {new Date(record.updated_at).toLocaleString()}</p>
-      {isAdmin && <div className="request-status-editor">
+      {canManageRequests && <div className="request-status-editor">
         <label htmlFor={`request-status-${id}`}>Status
           <select id={`request-status-${id}`} value={status} disabled={busy}
             onChange={event => setStatus(event.target.value as RequestStatus)}>

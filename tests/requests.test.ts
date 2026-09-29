@@ -74,6 +74,38 @@ test("customer requests: submission, ownership, admin status updates, and persis
         "X-Nuvra-Request": "1", Cookie: `nuvra_session=${tokens[2]}` }, body: JSON.stringify({ status: "completed" }),
     });
     assert.equal(crossOrigin.status, 403);
+    // Combined backend search and filtering with ownership and UTC boundaries.
+    db.prepare("UPDATE customer_requests SET created_at = ? WHERE id = ?")
+      .run("2026-09-20T23:59:59.999Z", created.id);
+    const insert = db.prepare("INSERT INTO customer_requests (user_id, subject, message, status, created_at) VALUES (?, ?, ?, ?, ?)");
+    const completedId = Number(insert.run(1, "ROUTINE complete", "100% done_under budget!", "completed", "2026-09-21T00:00:00.000Z").lastInsertRowid);
+    insert.run(2, "Routine private", "Someone else's request", "pending", "2026-09-20T12:00:00.000Z");
+    const results = async (query: string, token = tokens[0]) => {
+      const response = await request(query, token);
+      assert.equal(response.status, 200);
+      return response.json();
+    };
+    assert.equal((await results("?q=ROUTINE")).length, 2);
+    assert.equal((await results("?q=ROUTINE", tokens[2])).length, 3);
+    assert.deepEqual((await results("?q=routine&status=pending&from=2026-09-20&to=2026-09-20")).map((r: { id: number }) => r.id), [created.id]);
+    assert.equal((await results("?q=routine&status=completed&from=2026-09-20&to=2026-09-20")).length, 0);
+    assert.equal((await results("?from=2026-09-21&to=2026-09-21"))[0].id, completedId);
+    assert.equal((await results("?q=person1%40example.com", tokens[2])).length, 1);
+    assert.equal((await results("?q=person1%40example.com")).length, 0);
+    for (const text of ["100%", "done_under", "budget!"]) {
+      assert.equal((await results(`?q=${encodeURIComponent(text)}`))[0].id, completedId);
+    }
+    assert.equal((await results("?q=" + encodeURIComponent("' OR 1=1 --"))).length, 0);
+    assert.equal((await results("?status=pending&user_id=2")).length, 1);
+    assert.equal((await results("?q=does-not-exist")).length, 0);
+    for (const query of ["?status=bad", "?from=2026-02-30", "?from=2026-09-22&to=2026-09-20", "?q=a&q=b", "?to=wrong", "?q=" + "x".repeat(151)]) {
+      assert.equal((await request(query, tokens[0])).status, 400);
+    }
+    assert.equal((await request("?q=routine")).status, 401);
+    await request(`/${created.id}/status`, tokens[2], "PUT", { status: "completed" });
+    assert.equal((await results("?status=pending")).length, 0);
+    assert.equal((await results("?status=completed")).length, 2);
+    db.prepare("DELETE FROM customer_requests WHERE id != ?").run(created.id);
     const reopened = new Database(filename);
     createApp(reopened);
     assert.equal((reopened.prepare("SELECT COUNT(*) AS count FROM customer_requests").get() as { count: number }).count, 1);

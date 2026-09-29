@@ -1,3 +1,5 @@
+import { migrateSqliteUserRoles } from "./sqlite/user-roles.ts";
+import type { UserRole } from "../shared/roles.ts";
 import type { Express, Response } from "express";
 import type Database from "better-sqlite3";
 import {
@@ -6,14 +8,14 @@ import {
   setSessionCookie, tokenHash, verifyPassword,
 } from "./auth-core.ts";
 
-type User = { id: number; name: string; email: string; role: "user" | "admin" };
+type User = { id: number; name: string; email: string; role: UserRole };
 
 export function registerSqliteAuth(app: Express, db: Database.Database) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
       email TEXT NOT NULL COLLATE NOCASE UNIQUE, password_hash TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('user','admin')),
+      role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('user','employee','admin')),
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS sessions (
@@ -24,6 +26,8 @@ export function registerSqliteAuth(app: Express, db: Database.Database) {
       key TEXT PRIMARY KEY, attempts INTEGER NOT NULL DEFAULT 0, window_start INTEGER NOT NULL
     );
   `);
+
+  migrateSqliteUserRoles(db);
 
   function attempts(key: string) {
     const now = Date.now();

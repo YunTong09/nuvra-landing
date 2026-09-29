@@ -1,3 +1,4 @@
+import { searchWhere, validateSearch } from "../search.ts";
 import type { Express } from "express";
 import type { Pool } from "pg";
 import { validId, routeId } from "./validation.ts";
@@ -10,9 +11,10 @@ const toolError = (title: unknown, description: unknown) => {
   return "";
 };
 export function registerPostgresTools(app: Express, db: Pool) {
-  app.get("/api/tools", async (_req, res) => {
+  app.get("/api/tools", validateSearch, async (_req, res) => {
     res.set("Cache-Control", "no-store");
-    res.json((await db.query("SELECT * FROM tools ORDER BY id")).rows);
+    const { where, values } = searchWhere(res.locals.search, ["title", "description", "CAST(id AS TEXT)"], "postgres");
+    res.json((await db.query("SELECT * FROM tools" + where + " ORDER BY id", values)).rows);
   });
   app.post("/api/tools", async (req, res) => {
     const { title, description } = req.body ?? {};

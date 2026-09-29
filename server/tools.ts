@@ -1,3 +1,4 @@
+import { searchWhere, validateSearch } from "./search.ts";
 import type { Express } from "express";
 import type Database from "better-sqlite3";
 
@@ -43,9 +44,10 @@ export function registerTools(app: Express, database: Database.Database) {
     }
   })();
 
-  app.get("/api/tools", (_req, res) => {
+  app.get("/api/tools", validateSearch, (_req, res) => {
     res.set("Cache-Control", "no-store");
-    res.json(database.prepare("SELECT * FROM tools ORDER BY id").all());
+    const { where, values } = searchWhere(res.locals.search, ["title", "description", "CAST(id AS TEXT)"], "sqlite");
+    res.json(database.prepare("SELECT * FROM tools" + where + " ORDER BY id").all(...values));
   });
 
   app.post("/api/tools", (req, res) => {

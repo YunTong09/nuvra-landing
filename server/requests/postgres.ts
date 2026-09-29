@@ -1,12 +1,12 @@
+import { requestWhere } from "./filters.ts";
 import type { Pool } from "pg";
 import { requestSelect, type RequestRepository } from "./repository.ts";
 
 export function postgresRequests(db: Pool): RequestRepository {
   return {
-    async list(userId) {
-      const where = userId === undefined ? "" : " WHERE customer_requests.user_id = $1";
-      return (await db.query(requestSelect + where + " ORDER BY customer_requests.id DESC",
-        userId === undefined ? [] : [userId])).rows;
+    async list(userId, filters = {}) {
+      const { where, values } = requestWhere(filters, userId, "postgres");
+      return (await db.query(requestSelect + where + " ORDER BY customer_requests.id DESC", values)).rows;
     },
     async find(id, userId) {
       const where = userId === undefined ? "" : " AND customer_requests.user_id = $2";

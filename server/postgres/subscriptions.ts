@@ -1,3 +1,4 @@
+import { searchWhere, validateSearch } from "../search.ts";
 import type { Express } from "express";
 import type { Pool } from "pg";
 import { validId, routeId } from "./validation.ts";
@@ -14,9 +15,10 @@ const subscriptionSelect = `SELECT subscriptions.*, clients.name AS client_name,
   JOIN tools ON tools.id = subscriptions.tool_id`;
 
 export function registerPostgresSubscriptions(app: Express, db: Pool) {
-  app.get("/api/subscriptions", async (_req, res) => {
+  app.get("/api/subscriptions", validateSearch, async (_req, res) => {
     res.set("Cache-Control", "no-store");
-    res.json((await db.query(subscriptionSelect + " ORDER BY subscriptions.id")).rows);
+    const { where, values } = searchWhere(res.locals.search, ["clients.name", "clients.email", "tools.title", "subscriptions.status", "CAST(subscriptions.id AS TEXT)"], "postgres");
+    res.json((await db.query(subscriptionSelect + where + " ORDER BY subscriptions.id", values)).rows);
   });
   app.post("/api/subscriptions", async (req, res) => {
     const { client_id, tool_id, status } = req.body ?? {};

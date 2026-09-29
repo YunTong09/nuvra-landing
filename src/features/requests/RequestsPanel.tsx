@@ -1,22 +1,24 @@
 import { useEffect, useState } from "react";
-import type { CustomerRequest } from "../../../shared/requests";
+import type { CustomerRequest, RequestFilters } from "../../../shared/requests";
 import { listRequests } from "./api";
+import { RequestSearch } from "./RequestSearch";
 import { RequestList } from "./RequestList";
 import "./requests.css";
 
-export function RequestsPanel({ isAdmin = false }: { isAdmin?: boolean }) {
+export function RequestsPanel({ canManageRequests = false }: { canManageRequests?: boolean }) {
   const [requests, setRequests] = useState<CustomerRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filters, setFilters] = useState<RequestFilters>({});
   const [reload, setReload] = useState(0);
 
   useEffect(() => {
     let active = true;
-    listRequests().then(records => { if (active) setRequests(records); })
+    listRequests(filters).then(records => { if (active) setRequests(records); })
       .catch(failure => { if (active) setError(failure instanceof Error ? failure.message : "Could not load requests."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [reload]);
+  }, [reload, filters]);
 
   function refresh() {
     setLoading(true);
@@ -24,19 +26,25 @@ export function RequestsPanel({ isAdmin = false }: { isAdmin?: boolean }) {
     setReload(value => value + 1);
   }
 
-  function updated(record: CustomerRequest) {
-    setRequests(current => current.map(item => item.id === record.id ? record : item));
+  function search(next: RequestFilters) {
+    setLoading(true);
+    setError("");
+    setFilters(next);
   }
 
   return <section className="requests-panel" aria-labelledby="requests-heading">
-    <h2 id="requests-heading">{isAdmin ? "Customer requests" : "My requests"}</h2>
-    <p>{isAdmin ? "Review customer requests and keep their progress up to date." : "View your submitted requests and track their progress."}</p>
+    <h2 id="requests-heading">{canManageRequests ? "Customer requests" : "My requests"}</h2>
+    <p>{canManageRequests ? "Review customer requests and keep their progress up to date." : "View your submitted requests and track their progress."}</p>
+    <RequestSearch canManageRequests={canManageRequests} onSearch={search} />
     <div className="request-list-heading">
-      <h3>{isAdmin ? "All requests" : "Request history"}</h3>
+      <h3>{canManageRequests ? "All requests" : "Request history"}</h3>
       <button className="admin-secondary" disabled={loading} onClick={refresh}>Refresh requests</button>
     </div>
     {loading && <p role="status">Loading requests…</p>}
     {error && <p className="auth-error" role="alert">{error}</p>}
-    {!loading && !error && <RequestList requests={requests} isAdmin={isAdmin} onUpdated={updated} />}
+    {!loading && !error && <>
+      <p role="status">{requests.length} {requests.length === 1 ? "request" : "requests"} found.</p>
+      <RequestList requests={requests} canManageRequests={canManageRequests} onUpdated={refresh} />
+    </>}
   </section>;
 }

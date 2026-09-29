@@ -182,3 +182,7 @@
   outline-offset: 3px;
 }
 
+
+.admin-search { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 24px; }
+.admin-search label { display: flex; flex-direction: column; gap: 8px; flex: 1 1 280px; font-weight: 600; }
+.admin-search input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font: inherit; }

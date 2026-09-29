@@ -13,69 +13,55 @@ The browser calls `/api/*` on the same Vercel site. The API validates requests a
 
 ## Website direction and current behaviour
 
-Visitors can browse the company website and its tool list, then send an inquiry. A customer can register, log in, log out, and view or update their own name and email in a protected dashboard. **My space** sends customers to `/dashboard` and administrators to `/admin`.
+Visitors can browse the company website and its tool list, then send an inquiry. A customer can register, log in, log out, and view or update their own name and email in a protected dashboard. **My space** sends customers to `/dashboard`, employees to `/employee`, and administrators to `/admin`.
 
 An administrator can manage tool descriptions, client records, and client–tool subscription records. These client records are managed by staff; they are separate from website login accounts. Customers do not yet choose or change subscriptions themselves. Public registration creates a customer account; administrator access must be granted separately through a trusted backend command or database operation.
 
 The backend validates submitted account data, stores password hashes and sessions in the database, and checks access to management APIs. The browser never connects directly to Neon.
 
-## Task 6 — Service Management user guide
+## Administrator access
 
-Nuvra's company services are labelled **Tools** in the website and management area.
+Open `/admin` and sign in with an administrator account.
 
-### Administrator access
+Test administrator credentials are provided privately with the assignment submission.
 
-Open `/admin` on the submitted website. If you are not logged in, you will be redirected to `/login`. Sign in with the test administrator account, then open `/admin` or select **My space** to access the management area.
+## Task 6 — Service Management
 
-**Test administrator email and password:** to be provided privately with the assignment submission. Credentials are not published in this README. A newly registered customer account does not have administrator permissions.
-
-### Managing services
-
-1. Open the **Tools** tab to view all available services.
-2. To create a service, select **+ Add Tool**, enter a title and description, and select **Save Tool**.
-3. To update a service, select **Edit**, change its details, and select **Save Tool**.
-4. To remove a service, select **Delete** and confirm. If the service is linked to a subscription, remove that subscription from the **Subscriptions** tab first.
-5. Select **Website →** to return to the public website and view the **OUR TOOLS** section. If the website is already open in another tab, refresh that tab to see the changes.
-6. Select **Log out** when finished in the management area.
-
-The public website retrieves services from the backend through `GET /api/tools`, which reads the database. Saved changes appear on the next page load or refresh without editing website code or redeploying. An already-open public page does not update live. The backend restricts service creation, updates, and deletion to administrators.
-
-For folder details, see [frontend](src/README.md), [backend](server/README.md), and [tests](tests/README.md).
-
+- Administrators can create, view, update, and delete company services, labelled **Tools**.
+- Service management is restricted to authorized administrators.
+- The public website retrieves services from the backend and database.
+- Saved changes appear on the public website on the next page load or refresh.
 
 ## Task 7 — Customer Request Management
 
-### Customer workflow
+- Customers can submit service requests and view their own request details and progress.
+- Requests are stored in the database with an initial **Pending** status.
+- Administrators can review requests and update their status to **Pending**, **In progress**, **Completed**, or **Cancelled**.
+- Customers can retrieve the latest status by refreshing their request history.
 
-1. Register or log in, then open **My space** (`/dashboard`).
-2. Select **Submit a new request** to open `/requests/new`, enter a subject and request details, then select **Submit request**.
-3. The system saves the request with a reference number and **Pending** status. Select **View my requests** to return to the dashboard.
-4. Use **View details** to read a request, or filter the history by status.
-5. Select **Refresh requests** to retrieve the latest company updates. Customers can only access their own requests.
+## Task 8 — Search and Filtering
 
-The dashboard displays your profile without editable fields. Select **Edit profile** to open `/account/edit` and save changes to your name or email.
+- Administrators can search Tools, Clients, Subscriptions, and Requests using relevant names, descriptions, emails, or record IDs.
+- Customers can search their own requests from the dashboard.
+- Requests support combined keyword, status, and submission-date filters.
+- Results are retrieved from the backend and database, with options to clear search and filter criteria.
 
-### Company workflow
+## Task 9 — Role-Based Access
 
-1. Sign in with an administrator account and open `/admin?table=requests`.
-2. Open the **Requests** tab, optionally filter by status, and select **View details**.
-3. Review the customer name, email, request content, and timestamps.
-4. Choose **Pending**, **In progress**, **Completed**, or **Cancelled**, then select **Save status**.
-5. The saved status is visible to the customer when they refresh their request history.
+- The existing authentication system supports three roles: **Administrator** (`admin`), **Regular Employee** (`employee`), and **Customer** (`user`).
+- Administrators can manage Tools, Clients, and Subscriptions, view all customer requests, and update request statuses.
+- Regular employees use `/employee` to view and search all customer requests and update request statuses. They can edit their own profile, but cannot manage Tools, Clients, or Subscriptions.
+- Customers can view and update their own profile, submit requests, and view or search only their own requests. They cannot access administrator management operations or update request statuses.
+- Before allowing protected operations, the backend validates the session and retrieves the user's role from the database. Missing or invalid sessions return **401**; administrator-only operations attempted by employees or customers return **403**. Customers also receive **403** when attempting to update request statuses. A customer attempting to read another customer's request receives **404**.
+- Public registration always creates a customer account. Employee and administrator access are granted separately through trusted backend commands; clients cannot choose their role during registration or profile updates.
+- Role and ownership checks are enforced in both the SQLite and PostgreSQL backends. Existing databases are upgraded to accept the employee role while preserving accounts and related records.
 
-All new requests start as Pending. Administrators can select any of the four statuses, including reopening a completed or cancelled request. Customer identity comes from the authenticated session; customers cannot assign another owner or change status. Existing public feedback remains separate from service requests.
+To grant employee access, first register a customer account, then run this command in a trusted backend environment against the intended database (`DATABASE_URL` for PostgreSQL, or `DATABASE_PATH` for SQLite):
 
-### Running locally
+```sh
+npm run employee:grant -- employee@example.com
+```
 
-Run `npm ci`, then `npm run server` and `npm run dev` in separate terminals. Open the frontend URL printed by Vite. Without `DATABASE_URL`, the backend creates the SQLite tables automatically in `server/voltix.db`. Register a local account and run `npm run admin:promote -- your-email@example.com` to grant it administrator access.
+Sign in with that account and open **My space** to reach the employee workspace. The command does not change existing administrator accounts.
 
-For the existing Vercel/Neon deployment, keep `DATABASE_URL` configured. On startup, the backend creates the new request table without replacing existing records. Local and deployed databases have separate accounts and data.
-
-### Code organisation
-
-- `shared/requests.ts`: request types, allowed statuses, and display labels shared by frontend and backend.
-- `src/features/requests/`: customer form, request list, details/status editor, panel, API calls, and feature styling in separate files.
-- `server/requests/`: shared HTTP routes and validation, database schemas, repository contract, and separate SQLite/PostgreSQL implementations.
-- `tests/requests.test.ts`: end-to-end API tests against an isolated SQLite database.
-
-Run `npm test`, `npm run build`, and `npm run lint` to check the project. Live deployment and browser checks are separate from these automated checks.
+For folder details, see [frontend](src/README.md), [backend](server/README.md), and [tests](tests/README.md).

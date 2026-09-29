@@ -1,3 +1,4 @@
+import { searchWhere, validateSearch } from "../search.ts";
 import type { Express } from "express";
 import type Database from "better-sqlite3";
 import { validId } from "./validation.ts";
@@ -20,11 +21,10 @@ export function registerSqliteSubscriptions(app: Express, db: Database.Database)
     FROM subscriptions JOIN clients ON clients.id = subscriptions.client_id
     JOIN tools ON tools.id = subscriptions.tool_id`;
 
-  app.get("/api/subscriptions", (_req, res) => {
+  app.get("/api/subscriptions", validateSearch, (_req, res) => {
     res.set("Cache-Control", "no-store");
-    res.json(
-      db.prepare(subscriptionQuery + " ORDER BY subscriptions.id").all(),
-    );
+    const { where, values } = searchWhere(res.locals.search, ["clients.name", "clients.email", "tools.title", "subscriptions.status", "CAST(subscriptions.id AS TEXT)"], "sqlite");
+    res.json(db.prepare(subscriptionQuery + where + " ORDER BY subscriptions.id").all(...values));
   });
   app.post("/api/subscriptions", (req, res) => {
     const { client_id, tool_id, status } = req.body ?? {};
