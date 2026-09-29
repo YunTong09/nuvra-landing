@@ -18,7 +18,7 @@ This folder contains the frontend for submitting, viewing, and managing customer
 ## How the components work together
 
 ```text
-Customer dashboard / Admin Requests tab
+Customer dashboard / Employee workspace / Admin Requests tab
 └── RequestsPanel
     └── RequestList
         └── RequestDetails
@@ -43,12 +43,14 @@ The admin Requests tab and employee workspace render `RequestsPanel` with `canMa
 - `src/features/account/auth.ts` provides account/session functions.
 - `src/components/AccountPage.tsx` provides the customer page layout and account access checks.
 - `src/components/AccountOverview.tsx` contains the dashboard links to profile editing and request submission.
+- `src/features/employee/EmployeePage.tsx` provides the employee workspace using the same request management components.
+- `src/features/account/workspace.css` adapts the request components to each staff workspace theme.
 - `src/components/Admin.tsx` provides the administrator page and Requests tab.
 - `server/requests/` contains request routes, validation, database schemas, and SQLite/PostgreSQL repository implementations.
 
 ## Access and status rules
 
-Customers must sign in to submit requests and can only read their own records. Administrators can read all requests and update their status. New requests start as **Pending**; the other statuses are **In progress**, **Completed**, and **Cancelled**.
+Customers must sign in to submit requests and can only read their own records. Employees and administrators can read all requests and update their status. New requests start as **Pending**; the other statuses are **In progress**, **Completed**, and **Cancelled**.
 
 The frontend shows controls appropriate to the current view, but the backend enforces authentication, ownership, and role permissions. Hiding a button is not an access-control check.
 

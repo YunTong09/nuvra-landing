@@ -13,6 +13,7 @@ This folder contains the Express API, database setup, and server-only account lo
 | `tools.ts` | Local SQLite tool records and tool management routes. |
 | `relationships.ts` | Initializes and registers the SQLite client/subscription modules. |
 | `sqlite/` | Separate client/subscription routes, their table setup, and shared ID validation. |
+| `grant-employee.ts` | Grants employee access to an existing customer account from a trusted terminal; selects the database and upgrades its role constraint if needed. |
 | `promote-admin.ts` | Grants an existing account the admin role from a trusted terminal. |
 | `migrate-sqlite.ts` | Copies existing SQLite records into a new Neon database. |
 
@@ -56,6 +57,7 @@ Both database-specific authentication files import helpers from `auth-core.ts`; 
 | File | Responsibility |
 | --- | --- |
 | `postgres/schema.ts` | Creates missing tables and indexes, and inserts initial tools only for a newly created tools table. Uses a transaction and startup lock. |
+| `postgres/user-roles.ts` | Updates the users role constraint to accept employees inside the startup transaction. |
 | `postgres/contact.ts` | Validates and stores public feedback in the inquiries table. |
 | `postgres/tools.ts` | Reads, creates, updates, and deletes services/tools. |
 | `postgres/clients.ts` | Reads, creates, updates, and deletes company-managed client records. |
@@ -65,7 +67,7 @@ Both database-specific authentication files import helpers from `auth-core.ts`; 
 
 `postgres.ts` registers authentication before protected feature routes and error handling after them. Request management remains in `requests/`, where its routes are already shared by SQLite and PostgreSQL.
 
-For reading the backend, start with `index.ts`, then `app.ts` (SQLite) or `postgres.ts` (PostgreSQL), and follow the imported feature you are interested in. `promote-admin.ts` and `migrate-sqlite.ts` are manually run maintenance commands, not normal page requests.
+For reading the backend, start with `index.ts`, then `app.ts` (SQLite) or `postgres.ts` (PostgreSQL), and follow the imported feature you are interested in. `promote-admin.ts`, `grant-employee.ts`, and `migrate-sqlite.ts` are manually run maintenance commands, not normal page requests.
 
 ## SQLite client and subscription modules
 
@@ -97,6 +99,15 @@ Select **Search** to query the backend, or **Clear search** to restore the list.
 `src/features/search/SearchBar.tsx` provides the shared keyword-search interface. `server/search.ts` validates the query and builds SQL conditions for these three sections. Request-specific multi-criterion filtering remains in `server/requests/filters.ts`. Subscription form options are loaded without the list search so all clients and tools remain selectable.
 
 ## Task 9 — Employee access
+
+| File | Responsibility |
+| --- | --- |
+| [../shared/roles.ts](../shared/roles.ts) | Shared role type and `canManageRequests` permission check. |
+| [grant-employee.ts](grant-employee.ts) | Implements `npm run employee:grant -- email`; grants employee access without demoting admins. |
+| [sqlite/user-roles.ts](sqlite/user-roles.ts) | Upgrades the old SQLite users constraint, preserving records, references, indexes/triggers, and the ID sequence. Called by SQLite authentication initialization and the grant command. |
+| [postgres/user-roles.ts](postgres/user-roles.ts) | Upgrades the PostgreSQL users role constraint; called by `postgres/schema.ts` inside its transaction and startup lock. |
+| [auth-sqlite.ts](auth-sqlite.ts), [auth-postgres.ts](auth-postgres.ts) | Load roles from sessions and enforce administrator-only company-record operations. |
+| [requests/routes.ts](requests/routes.ts) | Allows employees/admins to read all requests and update statuses, while enforcing customer ownership. |
 
 The `user`, `employee`, and `admin` roles come from the database-backed session. `shared/roles.ts` defines the role type and the shared request-management permission. Employees and administrators can list/search all requests, read their details, and update status; customers can only read their own requests and cannot change status. Tools writes and all Client/Subscription management remain administrator-only. Profile updates cannot change roles.
 

@@ -7,6 +7,8 @@ This folder contains the React website. Components display pages and send reques
 | `main.tsx`, `App.tsx` | Start React and select the landing, auth, dashboard, employee, or admin page from the URL. |
 | `lib/http.ts` | Shared API base URL, HTTP requests, session credentials, and response/error handling. |
 | `features/account/auth.ts`, `useCurrentUser.ts` | Account types, current-user lookup, and role-based **My space** destination. |
+| `features/employee/EmployeePage.tsx` | Employee workspace, session checks, logout, and shared request management. |
+| `features/account/WorkspaceIdentity.tsx`, `workspace.css` | Staff role/name/email header and distinct Admin/Employee dark themes. |
 | `features/*/api.ts`, `features/*/types.ts` | Feature-specific endpoints and record types. |
 | `index.css`, `styles/` | Stylesheet entry point and separate site, admin, and account styles. |
 | `data/companyData.ts` | Landing-page copy and navigation data. |
@@ -21,6 +23,12 @@ Visitors see login and registration links on the landing page; signed-in users s
 `features/requests/RequestsPanel.tsx` loads the history and coordinates the feature. `RequestForm.tsx` submits requests, `RequestList.tsx` displays and selects them, and `RequestDetails.tsx` loads details and provides the employee/administrator status editor. `api.ts` contains the request endpoints; `requests.css` keeps feature styling separate. Shared types and status labels live in `shared/requests.ts` at the project root.
 
 The customer dashboard shows a read-only `AccountOverview` and request history. **Edit profile** opens `/account/edit`; **Submit a new request** opens `/requests/new`, where `NewRequestPage` shows the form and submission confirmation. The admin Requests tab and `/employee` workspace use the same list and details components with status management enabled. `features/employee/EmployeePage.tsx` owns the employee page, while `shared/roles.ts` defines roles and request-management permissions. Backend checks enforce ownership and role permissions independently of these UI controls.
+
+## Employee and staff identity modules
+
+See the [Employee module](features/employee/README.md) for the page and its shared dependencies, and [Account module](features/account/README.md) for the identity component, workspace themes, and account helpers. The employee profile editor retains the employee theme. Shared role definitions are documented in [shared modules](../shared/README.md).
+
+`App.tsx` selects the employee page by URL. The root `vercel.json` serves the React entry page for direct employee-page visits; it is deployment rewrite configuration, not a separate frontend router.
 
 ## Tools management module
 

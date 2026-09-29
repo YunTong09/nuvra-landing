@@ -5,7 +5,8 @@ These tests exercise backend behaviour with temporary or in-memory data. They ve
 | Test | What it checks |
 | --- | --- |
 | `auth.test.ts` | Registration, login, sessions, logout, profile updates, validation, login limits, and admin access with SQLite. |
-| `postgres-access.test.ts` | Session, profile update, and administrator checks on the PostgreSQL API path. |
+| `postgres-access.test.ts` | Session/profile checks and employee/admin request permissions and management restrictions through a stub PostgreSQL connection. |
+| `employee-access.test.ts` | Employee permissions, blocked role escalation, immediate role changes, and SQLite migration preserving accounts, sessions, requests, and ID sequence. |
 | `requests.test.ts` | Submission validation, server-assigned ownership/status, customer isolation, administrator status updates, request details, cross-origin rejection, and persistence. |
 | `tools.test.ts` | Public tool reads, admin tool writes, validation, persistence, and inquiries. |
 | `relationships.test.ts` | Client and subscription operations and database constraints. |
