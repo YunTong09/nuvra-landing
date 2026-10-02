@@ -116,7 +116,12 @@ export function registerDocuments(app: Express, repository: DocumentRepository, 
   });
 
   router.get("/", async (_req, res) => {
-    res.json(await repository.listForUser(res.locals.user.id));
+    try {
+      const documents = await repository.getDocumentsByUser(res.locals.user.id);
+      return res.status(200).json(documents);
+    } catch {
+      return res.status(500).json({ error: "Could not retrieve documents. Please try again later." });
+    }
   });
 
   router.delete("/:id", async (req, res) => {
