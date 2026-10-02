@@ -8,6 +8,9 @@ import { registerPostgresTools } from "./postgres/tools.js";
 import { registerPostgresClients } from "./postgres/clients.js";
 import { registerPostgresSubscriptions } from "./postgres/subscriptions.js";
 import { handlePostgresError } from "./postgres/errors.js";
+import { registerDocuments } from "./documents.js";
+import { postgresDocuments } from "./postgres/documents.js";
+import { blobDocumentStorage, registerDocumentBlobCallback } from "./document-storage.js";
 
 // Keep the existing import path for server startup, migration, and Vercel.
 export { initializePostgres } from "./postgres/schema.js";
@@ -22,7 +25,10 @@ export function createPostgresApp(db: Pool) {
     next();
   });
   app.use(express.json());
+  const documents = postgresDocuments(db);
+  registerDocumentBlobCallback(app, documents);
   registerPostgresAuth(app, db);
+  registerDocuments(app, documents, blobDocumentStorage());
   registerRequests(app, postgresRequests(db));
   app.get("/", (_req, res) => res.send("Nuvra backend is running"));
 

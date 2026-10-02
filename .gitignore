@@ -26,6 +26,9 @@ dist-ssr
 
 server/voltix.db
 
+# Local document uploads (never commit user files)
+/uploads/
+
 # Private assignment submission instructions
 README-submission.md
 Nuvra-Task-6*.zip

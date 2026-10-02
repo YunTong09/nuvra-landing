@@ -19,5 +19,15 @@ export function initializeRelationships(db: Database.Database) {
       UNIQUE(client_id, tool_id)
     );
     CREATE INDEX IF NOT EXISTS idx_subscriptions_tool ON subscriptions(tool_id);
+    CREATE TABLE IF NOT EXISTS documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+      original_name TEXT NOT NULL,
+      stored_name TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      file_size INTEGER NOT NULL CHECK (typeof(file_size) = 'integer' AND file_size BETWEEN 0 AND 9007199254740991),
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id);
   `);
 }

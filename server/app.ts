@@ -6,6 +6,9 @@ import type Database from "better-sqlite3";
 import { registerRelationships } from "./relationships.js";
 import { registerTools } from "./tools.js";
 import { registerSqliteAuth } from "./auth-sqlite.js";
+import { registerDocuments } from "./documents.js";
+import { sqliteDocuments } from "./sqlite/documents.js";
+import { localDocumentStorage } from "./document-storage.js";
 
 export function createApp(database: Database.Database) {
   const app = express();
@@ -38,6 +41,7 @@ export function createApp(database: Database.Database) {
 
   app.use(express.json());
   registerSqliteAuth(app, database);
+  registerDocuments(app, sqliteDocuments(database), localDocumentStorage());
   database.exec(sqliteRequestSchema);
   registerRequests(app, sqliteRequests(database));
 
