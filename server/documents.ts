@@ -129,8 +129,25 @@ export function registerDocuments(app: Express, repository: DocumentRepository, 
     const id = Number(rawId);
     if (typeof rawId !== "string" || !/^\d+$/.test(rawId) || !Number.isSafeInteger(id) || id < 1)
       return res.status(400).json({ error: "Invalid document ID." });
-    if (!await repository.deleteForUser(id, res.locals.user.id))
+    const userId = res.locals.user.id;
+    let document: DocumentMetadata | undefined;
+    try { document = await repository.getDocumentByIdForUser(id, userId); }
+    catch {
+      return res.status(500).json({ error: "Could not retrieve the document. Please try again later." });
+    }
+    if (!document || document.user_id !== userId)
       return res.status(404).json({ error: "Document not found." });
+    if (!storage) return res.status(503).json({ error: "Document storage is not configured." });
+    try { await storage.remove(document); }
+    catch {
+      return res.status(503).json({ error: "Could not delete the stored document. Please try again later." });
+    }
+    try {
+      if (!await repository.deleteDocument(id, userId))
+        return res.status(404).json({ error: "Document not found." });
+    } catch {
+      return res.status(500).json({ error: "The file was removed, but document metadata could not be deleted. Please retry." });
+    }
     res.status(204).end();
   });
 

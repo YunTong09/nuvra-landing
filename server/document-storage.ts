@@ -14,9 +14,11 @@ export type StoredDocument = {
 
 export type DocumentStorage = {
   kind: "local";
+  remove(document: DocumentMetadata): Promise<void>;
   save(userId: number, file: Express.Multer.File): Promise<StoredDocument>;
 } | {
   kind: "blob";
+  remove(document: DocumentMetadata): Promise<void>;
   authorize(req: Request, userId: number): Promise<unknown>;
 };
 
@@ -66,6 +68,16 @@ export function localDocumentStorage(): DocumentStorage {
   const directory = resolve("uploads/documents");
   return {
     kind: "local",
+    async remove(document) {
+      const name = document.stored_name;
+      if (!name.startsWith(`${document.user_id}-`) ||
+          !/^\d+-[0-9a-f-]+\.(pdf|doc|docx|txt)$/.test(name))
+        throw new Error("Invalid stored document filename.");
+      try { await unlink(join(directory, name)); }
+      catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      }
+    },
     async save(userId, file) {
       const filename = `${userId}-${randomUUID()}${extname(file.originalname).toLowerCase()}`;
       await mkdir(directory, { recursive: true, mode: 0o700 });
@@ -107,6 +119,16 @@ function callbackUrl(): string {
 export function blobDocumentStorage(): DocumentStorage {
   return {
     kind: "blob",
+    async remove(document) {
+      const url = new URL(document.stored_name);
+      if (url.protocol !== "https:" ||
+          !/^[a-z0-9-]+\.private\.blob\.vercel-storage\.com$/i.test(url.hostname) ||
+          !url.pathname.startsWith(`/documents/${document.user_id}/`) ||
+          !/^[0-9a-f-]+\.(pdf|doc|docx|txt)$/.test(url.pathname.split("/").pop() || "") ||
+          url.pathname.split("/").length !== 4 || url.search || url.hash || url.username || url.password)
+        throw new Error("Invalid stored document Blob URL.");
+      await del(document.stored_name, { token: blobToken() });
+    },
     async authorize(req, userId) {
       if (!Number.isSafeInteger(userId) || userId < 1)
         throw new DocumentUploadError(401, "Please log in.");
