@@ -10,8 +10,10 @@ import { CTA } from "./components/CTA";
 import { Footer } from "./components/Footer";
 import { AuthPage } from "./components/AuthPage";
 import { AccountPage } from "./components/AccountPage";
+import { DocumentsPage } from "./features/documents/DocumentsPage";
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, "");
+  if (path === "/documents") return <DocumentsPage />;
   if (path === "/admin")
     return <Admin />;
   if (path === "/login" || path === "/register") return <AuthPage />;

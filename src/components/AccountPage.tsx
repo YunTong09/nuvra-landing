@@ -7,12 +7,20 @@ import { apiRequest } from "../lib/http";
 import { currentUser, spacePath, type CurrentUser } from "../features/account/auth";
 import { Brand } from "./Icon";
 import { AccountDetailsForm } from "./AccountDetailsForm";
+import { DocumentsPage } from "../features/documents/DocumentsPage";
 
 type AccountView = "dashboard" | "profile" | "new-request";
 
 export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [error, setError] = useState("");
+  const [tab, setTab] = useState<"requests" | "documents">("requests");
+  const [documentsOpened, setDocumentsOpened] = useState(false);
+
+  function selectTab(next: "requests" | "documents") {
+    setTab(next);
+    if (next === "documents") setDocumentsOpened(true);
+  }
 
   useEffect(() => {
     let active = true;
@@ -41,7 +49,7 @@ export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
   }
 
   const title = view === "profile" ? "Edit profile" : view === "new-request" ? "Submit a new request" :
-    user ? `Hello, ${user.name}` : "Your dashboard";
+    "My Space";
 
   return <div className={user?.role === "employee" ? "staff-workspace staff-workspace--employee" : undefined}>
     <a className="skip-link" href="#account-content">Skip to content</a>
@@ -59,7 +67,38 @@ export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
         <h1>{title}</h1>
         {view !== "dashboard" && <p><a href={spacePath(user)}>← Back to dashboard</a></p>}
         {!user ? <p role="status" className="account-loading">Checking your account…</p> : <>
-          {view === "dashboard" && <><AccountOverview user={user} /><RequestsPanel /></>}
+          {view === "dashboard" && <>
+            <AccountOverview user={user} />
+            <style>{`
+              .space-tabs { display: flex; gap: .5rem; margin: 1.5rem 0; border-bottom: 1px solid #78878366; }
+              .space-tabs button { font: inherit; color: inherit; cursor: pointer; padding: .8rem 1rem; border: 0; border-bottom: 3px solid transparent; background: transparent; transition: background .2s, border-color .2s; }
+              .space-tabs button[aria-selected="true"] { border-bottom-color: #70d9b7; background: #70d9b722; }
+              .space-panel:not([hidden]) { animation: space-tab-enter .2s ease-out; }
+              @keyframes space-tab-enter { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+              @media (prefers-reduced-motion: reduce) { .space-tabs button { transition: none; } .space-panel:not([hidden]) { animation: none; } }
+            `}</style>
+            <div className="space-tabs" role="tablist" aria-label="My Space sections">
+              {(["requests", "documents"] as const).map(value => <button key={value} type="button"
+                role="tab" id={`space-tab-${value}`} aria-controls={`space-panel-${value}`}
+                aria-selected={tab === value} tabIndex={tab === value ? 0 : -1}
+                onClick={() => selectTab(value)} onKeyDown={event => {
+                  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                  event.preventDefault();
+                  const next = event.key === "Home" ? "requests" : event.key === "End" ? "documents"
+                    : value === "requests" ? "documents" : "requests";
+                  selectTab(next);
+                  document.getElementById(`space-tab-${next}`)?.focus();
+                }}>{value === "requests" ? "My Requests" : "My Documents"}</button>)}
+            </div>
+            <div className="space-panel" role="tabpanel" id="space-panel-requests"
+              aria-labelledby="space-tab-requests" hidden={tab !== "requests"} tabIndex={0}>
+              <RequestsPanel />
+            </div>
+            <div className="space-panel" role="tabpanel" id="space-panel-documents"
+              aria-labelledby="space-tab-documents" hidden={tab !== "documents"} tabIndex={0}>
+              {documentsOpened && <DocumentsPage embedded />}
+            </div>
+          </>}
           {view === "profile" && <>
             <AccountDetailsForm user={user} onSaved={setUser} />
             <p><a href={spacePath(user)}>Done / return to dashboard</a></p>

@@ -1,0 +1,13 @@
+.documents-page { max-width: 900px; }
+.documents-page .auth-form { max-width: none; }
+.documents-page input[type="file"] { max-width: 100%; }
+.documents-list { margin-top: 2.5rem; }
+.documents-heading, .document-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.documents-list ul { list-style: none; padding: 0; }
+.document-row { padding: 1.25rem 0; border-bottom: 1px solid #78878366; }
+.document-row > div { min-width: 0; }
+.document-row p { margin: .35rem 0; }
+.document-filename { overflow-wrap: anywhere; }
+.documents-list button { color: inherit; background: transparent; border: 1px solid currentColor; border-radius: .5rem; padding: .6rem 1rem; cursor: pointer; }
+.documents-page button:disabled { opacity: .55; cursor: wait; }
+@media (max-width: 540px) { .document-row { align-items: flex-start; flex-direction: column; } }
