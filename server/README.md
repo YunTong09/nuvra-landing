@@ -116,3 +116,27 @@ The `user`, `employee`, and `admin` roles come from the database-backed session.
 `sqlite/user-roles.ts` upgrades the original users table constraint transactionally while preserving user IDs, sessions, requests, and the ID sequence. `postgres/user-roles.ts` upgrades the PostgreSQL constraint within the existing startup transaction and lock. Both upgrades run during normal initialization.
 
 Use `npm run employee:grant -- employee@example.com` after registering the account. `grant-employee.ts` selects PostgreSQL with `DATABASE_URL`, otherwise SQLite with `DATABASE_PATH` (default `server/voltix.db`). It upgrades the schema if needed and only grants the role to customer or existing employee accounts. Run it only in a trusted backend environment against the intended database. It cannot demote administrators.
+
+## Task 10 — File & Document Management
+
+| File | Responsibility |
+| --- | --- |
+| `documents.ts` | Shared document types, `DocumentRepository`, authenticated upload/list/delete routes, validation feedback, and ownership checks. |
+| `document-storage.ts` | File rules and basic content checks, local file storage/removal, private Blob token authorization, signed completion verification, and Blob removal. |
+| `sqlite/documents.ts` | Creates, lists, finds, and deletes metadata with user-scoped SQLite queries. |
+| `postgres/documents.ts` | Equivalent PostgreSQL operations; creation uses a transaction and advisory lock to avoid duplicate completion records. |
+| `sqlite/schema.ts`, `postgres/schema.ts` | Initialize the documents table and owner index using the existing users foreign key. |
+| `app.ts`, `postgres.ts` | Register document routes with local or Blob storage respectively; PostgreSQL also registers the signed Blob callback. |
+
+| Endpoint | Access | Purpose |
+| --- | --- | --- |
+| `POST /api/documents` | Signed-in user | Local: accept one multipart `file` and return metadata with 201. Production: authorize a short-lived direct-upload token. |
+| `GET /api/documents` | Signed-in user | Return the session owner's metadata array, or `[]`, with 200. |
+| `DELETE /api/documents/:id` | Owner | Delete the stored file/Blob first, then metadata; return 204. |
+| `POST /api/documents/blob-callback` | Verified Blob signature | Verify the completed private upload and persist metadata asynchronously. |
+
+`DocumentMetadataInput` contains `original_name`, `stored_name`, `mime_type`, and `file_size`; `DocumentMetadata` adds `id`, `user_id`, and `created_at`. `stored_name` holds the local filename or private Blob URL. Both repositories expose `createDocument`, `getDocumentsByUser`, `getDocumentByIdForUser`, and `deleteDocument`, with compatibility aliases. File binaries are never stored in the database.
+
+Document ownership comes from the existing session, not request body/query values. Missing and foreign-owned documents return the same 404 response. Missing authentication returns 401; invalid IDs or missing files return 400; unsupported files return 415; files over 10 MB (10 MiB) return 413. Supported formats are PDF, DOC, DOCX, and UTF-8 TXT. Storage failures return 503 and database failures return 500. Missing local files do not prevent metadata deletion; failed local metadata creation rolls back the saved file.
+
+Local files live in the Git-ignored `uploads/documents/` directory. Production uses private Vercel Blob direct upload so file bytes do not enter the upload Function request. `BLOB_READ_WRITE_TOKEN` stays server-side; `BLOB_UPLOAD_CALLBACK_URL` optionally sets the HTTPS callback address instead of the Vercel deployment domain. The callback is registered before browser-session middleware and is authenticated by its provider signature. Deployment support is implemented; live deployment testing is not required for Task 10 acceptance.

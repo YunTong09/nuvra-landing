@@ -4,8 +4,8 @@ This folder contains the React website. Components display pages and send reques
 
 | Part | Responsibility |
 | --- | --- |
-| `main.tsx`, `App.tsx` | Start React and select the landing, auth, dashboard, employee, or admin page from the URL. |
-| `lib/http.ts` | Shared API base URL, HTTP requests, and session credentials. |
+| `main.tsx`, `App.tsx` | Start React and select the landing, auth, dashboard, documents, employee, or admin page from the URL. |
+| `lib/http.ts` | Shared API base URL, JSON/multipart HTTP requests, and session credentials. |
 | `lib/api-response.ts` | Parses API responses, preserves backend validation messages, and shows readable errors when hosting returns plain text or HTML. |
 | `features/account/auth.ts`, `useCurrentUser.ts` | Account types, current-user lookup, and role-based **My space** destination. |
 | `features/employee/EmployeePage.tsx` | Employee workspace, session checks, logout, and shared request management. |
@@ -25,6 +25,12 @@ Visitors see login and registration links on the landing page; signed-in users s
 
 The customer dashboard shows a read-only `AccountOverview` and request history. **Edit profile** opens `/account/edit`; **Submit a new request** opens `/requests/new`, where `NewRequestPage` shows the form and submission confirmation. The admin Requests tab and `/employee` workspace use the same list and details components with status management enabled. `features/employee/EmployeePage.tsx` owns the employee page, while `shared/roles.ts` defines roles and request-management permissions. Backend checks enforce ownership and role permissions independently of these UI controls.
 
+## File and document module
+
+`components/AccountPage.tsx` keeps **My Space** as the main container, with **My Requests** and **My Documents** tabs. It reuses `RequestsPanel` and an embedded `features/documents/DocumentsPage.tsx`; opened panels remain mounted to preserve their state. Active styles, keyboard navigation, and a reduced-motion-aware transition belong to the container.
+
+`features/documents/api.ts` handles document metadata types, file validation, list/delete calls, local multipart upload, and private Blob direct upload. `DocumentsPage.tsx` owns the file picker, metadata list, mutation feedback, and completion polling; `documents.css` supplies feature styling. The page also supports the standalone `/documents` route. See [Documents module](features/documents/README.md) for file responsibilities.
+
 ## Employee and staff identity modules
 
 See the [Employee module](features/employee/README.md) for the page and its shared dependencies, and [Account module](features/account/README.md) for the identity component, workspace themes, and account helpers. The employee profile editor retains the employee theme. Shared role definitions are documented in [shared modules](../shared/README.md).
@@ -43,6 +49,6 @@ See the [Clients module](features/clients/README.md) and [Subscriptions module](
 
 ## Shared HTTP and styles
 
-All frontend network requests use `lib/http.ts`. Feature API modules describe which endpoint to call; the HTTP helper sends JSON, includes session credentials, handles empty responses, and reports API errors. Account/session helpers live in `features/account/auth.ts`. Tool, client, and subscription record types live in each feature's `types.ts`.
+Application API requests use `lib/http.ts`; production document transfers use the Vercel Blob client SDK. Feature API modules describe which endpoint to call; the HTTP helper sends JSON or multipart FormData, includes session credentials, handles empty responses, and reports API errors. Account/session helpers live in `features/account/auth.ts`. Tool, client, and subscription record types live in each feature's `types.ts`.
 
 `index.css` imports `styles/site.css`, `styles/admin.css`, and `styles/account.css` in that order, preserving existing cascade behaviour. Request-specific styles remain in `features/requests/requests.css`.
