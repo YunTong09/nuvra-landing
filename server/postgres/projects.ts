@@ -1,3 +1,4 @@
+import { defaultProjectStatus } from "../projects.js";
 import type { Pool, PoolClient } from "pg";
 import type { Project, ProjectDetails, ProjectMemberDetails, ProjectRepository, ProjectScope } from "../projects.js";
 
@@ -74,7 +75,7 @@ export function postgresProjects(pool: Pool): ProjectRepository {
       return transaction(async db => {
         const result = await db.query(`INSERT INTO projects (client_id, name, description, status)
           VALUES ($1, $2, $3, $4) RETURNING id`,
-          [input.client_id, input.name, input.description ?? "", input.status ?? "not_started"]);
+          [input.client_id, input.name, input.description ?? "", input.status ?? defaultProjectStatus]);
         const id = result.rows[0].id as number;
         await replaceMembers(db, id, memberIds);
         return (await find(db, id))!;

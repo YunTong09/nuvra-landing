@@ -1,3 +1,4 @@
+import { defaultProjectStatus } from "../projects.js";
 import type Database from "better-sqlite3";
 import type { Project, ProjectDetails, ProjectMemberDetails, ProjectRepository, ProjectScope } from "../projects.js";
 
@@ -50,7 +51,7 @@ export function sqliteProjects(db: Database.Database): ProjectRepository {
     async create(input, memberIds = []) {
       return db.transaction(() => {
         const result = db.prepare(`INSERT INTO projects (client_id, name, description, status)
-          VALUES (?, ?, ?, ?)`).run(input.client_id, input.name, input.description ?? "", input.status ?? "not_started");
+          VALUES (?, ?, ?, ?)`).run(input.client_id, input.name, input.description ?? "", input.status ?? defaultProjectStatus);
         const id = Number(result.lastInsertRowid);
         replaceMembers(id, memberIds);
         return find(id)!;

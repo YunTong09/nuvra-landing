@@ -1,7 +1,11 @@
 import { Router, type Express, type ErrorRequestHandler } from "express";
 
-export const projectStatuses = ["not_started", "in_progress", "completed", "on_hold"] as const;
+export const projectStatuses = ["Not Started", "In Progress", "Completed", "On Hold"] as const;
 export type ProjectStatus = typeof projectStatuses[number];
+export const defaultProjectStatus: ProjectStatus = "Not Started";
+// Shared classifications for dashboard counts.
+export const activeProjectStatus: ProjectStatus = "In Progress";
+export const completedProjectStatus: ProjectStatus = "Completed";
 
 export interface Project {
   id: number;
@@ -29,6 +33,38 @@ export interface ProjectDetails extends Project {
   client_email: string;
   member_ids: number[];
   members: ProjectMemberDetails[];
+}
+
+export interface ProjectDashboard {
+  stats: {
+    totalProjects: number;
+    activeProjects: number;
+    completedProjects: number;
+    notStartedProjects: number;
+    onHoldProjects: number;
+  };
+  projects: ProjectDetails[];
+}
+
+// Count the already-scoped snapshot so statistics and the list always agree.
+function projectDashboard(projects: ProjectDetails[]): ProjectDashboard {
+  const counts: Record<ProjectStatus, number> = {
+    "Not Started": 0,
+    "In Progress": 0,
+    "Completed": 0,
+    "On Hold": 0,
+  };
+  for (const project of projects) counts[project.status]++;
+  return {
+    stats: {
+      totalProjects: projects.length,
+      activeProjects: counts[activeProjectStatus],
+      completedProjects: counts[completedProjectStatus],
+      notStartedProjects: counts[defaultProjectStatus],
+      onHoldProjects: counts["On Hold"],
+    },
+    projects,
+  };
 }
 
 export type ProjectInput = Pick<Project, "client_id" | "name"> &
@@ -74,7 +110,7 @@ function validateProjectBody(body: unknown, partial: boolean): string | undefine
       (typeof fields.description !== "string" || fields.description.length > 10000))
     return "Description must be text of at most 10000 characters.";
   if (Object.hasOwn(fields, "status") && !projectStatuses.includes(fields.status as ProjectStatus))
-    return "Status must be not_started, in_progress, completed, or on_hold.";
+    return `Status must be one of: ${projectStatuses.join(", ")}.`;
   if (Object.hasOwn(fields, "member_ids") &&
       (!Array.isArray(fields.member_ids) || fields.member_ids.length > 1000 || !fields.member_ids.every(validId)))
     return "Member IDs must be an array of up to 1000 valid user IDs.";
@@ -111,6 +147,10 @@ export function registerProjects(app: Express, repository: ProjectRepository) {
 
   router.get("/", async (_req, res) => {
     res.json(await repository.list(res.locals.projectScope));
+  });
+  router.get("/dashboard", async (_req, res) => {
+    const projects = await repository.list(res.locals.projectScope);
+    res.json(projectDashboard(projects));
   });
   router.get("/:id", async (req, res) => {
     const project = await repository.find(Number(req.params.id), res.locals.projectScope);

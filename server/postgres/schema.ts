@@ -79,8 +79,8 @@ export async function initializePostgres(pool: Pool) {
       client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
       name TEXT NOT NULL CHECK (length(trim(name)) > 0),
       description TEXT NOT NULL DEFAULT '',
-      status TEXT NOT NULL DEFAULT 'not_started'
-        CHECK (status IN ('not_started', 'in_progress', 'completed', 'on_hold')),
+      status TEXT NOT NULL DEFAULT 'Not Started'
+        CHECK (status IN ('Not Started', 'In Progress', 'Completed', 'On Hold')),
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
@@ -91,6 +91,28 @@ export async function initializePostgres(pool: Pool) {
       PRIMARY KEY (project_id, user_id)
     );
     CREATE INDEX IF NOT EXISTS idx_project_members_user ON project_members(user_id);
+    `);
+    // Upgrade existing databases once, inside the startup transaction and lock.
+    await db.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM pg_constraint
+          WHERE conrelid = 'projects'::regclass AND conname = 'projects_status_check'
+            AND position('not_started' in pg_get_constraintdef(oid)) > 0
+        ) THEN
+          ALTER TABLE projects DROP CONSTRAINT projects_status_check;
+          UPDATE projects SET status = CASE status
+            WHEN 'not_started' THEN 'Not Started'
+            WHEN 'in_progress' THEN 'In Progress'
+            WHEN 'completed' THEN 'Completed'
+            WHEN 'on_hold' THEN 'On Hold'
+            ELSE status END;
+          ALTER TABLE projects ALTER COLUMN status SET DEFAULT 'Not Started';
+          ALTER TABLE projects ADD CONSTRAINT projects_status_check
+            CHECK (status IN ('Not Started', 'In Progress', 'Completed', 'On Hold'));
+        END IF;
+      END $$;
     `);
     await migratePostgresUserRoles(db);
     await db.query(postgresRequestSchema);
