@@ -98,7 +98,7 @@ function migrateProjectStatuses(db: Database.Database) {
     if (sequence) {
       db.prepare("UPDATE sqlite_sequence SET seq = max(seq, ?) WHERE name = 'projects'").run(sequence.seq);
     }
-    if (db.pragma("foreign_key_check(projects)").length || db.pragma("foreign_key_check(project_members)").length)
+    if ((db.pragma("foreign_key_check(projects)") as unknown[]).length || (db.pragma("foreign_key_check(project_members)") as unknown[]).length)
       throw new Error("Project status migration failed relationship validation.");
   }).immediate();
 }
