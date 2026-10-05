@@ -1,0 +1,14 @@
+.projects-page { display: grid; gap: 1.5rem; }
+.projects-page > .button { justify-self: start; }
+.project-list { display: grid; gap: 1.5rem; }
+.project-card { border: 1px solid currentColor; border-radius: 1rem; padding: clamp(1rem, 3vw, 2rem); overflow-wrap: anywhere; }
+.project-card h2 { margin-top: 0; }
+.project-description { white-space: pre-wrap; }
+.project-member-options { min-width: 0; border: 0; padding: 0; }
+.project-member-options .project-member-option { display: flex; align-items: center; gap: .75rem; margin-block: .75rem; }
+.project-member-options .project-member-option input { width: 1.15rem; height: 1.15rem; flex: 0 0 auto; margin: 0; }
+.project-member-option span { overflow-wrap: anywhere; }
+.project-status-form { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; }
+.project-status-form label { display: grid; gap: .5rem; }
+.project-status-form select { font: inherit; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: .5rem; padding: .75rem; }
+.project-status-form option { color: #171b1b; background: #fff; }

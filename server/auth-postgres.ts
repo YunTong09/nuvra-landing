@@ -99,6 +99,18 @@ export function registerPostgresAuth(app: Express, db: Pool) {
     await db.query("DELETE FROM auth_attempts WHERE key = $1", [limitKey]);
     res.json({ user: await issueSession(user, res) });
   });
+  // Minimal staff options for project assignment; the session middleware runs first.
+  app.get("/api/users/options", async (_req, res) => {
+    if (!res.locals.user) return res.status(401).json({ error: "Please log in." });
+    if (res.locals.user.role !== "admin")
+      return res.status(403).json({ error: "Administrator access required." });
+    try {
+      res.json((await db.query("SELECT id, name, email, role FROM users WHERE role = 'employee' ORDER BY name, id")).rows);
+    } catch {
+      res.status(500).json({ error: "Could not load employee options. Please try again." });
+    }
+  });
+
   app.get("/api/auth/me", (_req, res) => res.json({ user: res.locals.user }));
   app.put("/api/auth/me", async (req, res) => {
     const { name, email } = req.body ?? {};

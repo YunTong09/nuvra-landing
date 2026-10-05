@@ -1,3 +1,4 @@
+import { ProjectsPage } from "./features/projects/ProjectsPage";
 import { EmployeePage } from "./features/employee/EmployeePage";
 import { Admin } from "./components/Admin";
 import { Navbar } from "./components/Navbar";
@@ -13,6 +14,7 @@ import { AccountPage } from "./components/AccountPage";
 import { DocumentsPage } from "./features/documents/DocumentsPage";
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, "");
+  if (path === "/projects") return <ProjectsPage />;
   if (path === "/documents") return <DocumentsPage />;
   if (path === "/admin")
     return <Admin />;

@@ -42,6 +42,7 @@ export function EmployeePage() {
       <a href="/" aria-label="Nuvra home"><Brand /></a>
       {user && <WorkspaceIdentity user={user} />}
       <nav className="account-nav" aria-label="Employee navigation">
+        <a href="/projects">Projects</a>
         <a href="/">Website</a>
         <button onClick={logout} disabled={!user || loggingOut}>Log out</button>
       </nav>

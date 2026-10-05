@@ -53,6 +53,7 @@ export function Admin() {
           </a>
           {user && <WorkspaceIdentity user={user} />}
           <nav className="account-nav" aria-label="Admin navigation">
+            <a href="/projects">Projects</a>
             <a href="/">Website →</a>
             <button type="button" onClick={logout} disabled={loggingOut}>Log out</button>
           </nav>
