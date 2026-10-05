@@ -9,6 +9,8 @@ import { registerSqliteAuth } from "./auth-sqlite.js";
 import { registerDocuments } from "./documents.js";
 import { sqliteDocuments } from "./sqlite/documents.js";
 import { localDocumentStorage } from "./document-storage.js";
+import { registerProjects } from "./projects.js";
+import { sqliteProjects } from "./sqlite/projects.js";
 
 export function createApp(database: Database.Database) {
   const app = express();
@@ -100,6 +102,7 @@ export function createApp(database: Database.Database) {
 
   registerTools(app, database);
   registerRelationships(app, database);
+  registerProjects(app, sqliteProjects(database));
   const handleError: ErrorRequestHandler = (error, _req, res, _next) => {
     const code =
       error && typeof error === "object" && "code" in error ? error.code : "";

@@ -11,6 +11,8 @@ import { handlePostgresError } from "./postgres/errors.js";
 import { registerDocuments } from "./documents.js";
 import { postgresDocuments } from "./postgres/documents.js";
 import { blobDocumentStorage, registerDocumentBlobCallback } from "./document-storage.js";
+import { registerProjects } from "./projects.js";
+import { postgresProjects } from "./postgres/projects.js";
 
 // Keep the existing import path for server startup, migration, and Vercel.
 export { initializePostgres } from "./postgres/schema.js";
@@ -36,6 +38,7 @@ export function createPostgresApp(db: Pool) {
   registerPostgresTools(app, db);
   registerPostgresClients(app, db);
   registerPostgresSubscriptions(app, db);
+  registerProjects(app, postgresProjects(db));
   app.use(handlePostgresError);
   return app;
 }

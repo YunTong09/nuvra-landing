@@ -29,5 +29,22 @@ export function initializeRelationships(db: Database.Database) {
       created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
     );
     CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id);
+    CREATE TABLE IF NOT EXISTS projects (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
+      name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+      description TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'not_started'
+        CHECK (status IN ('not_started', 'in_progress', 'completed', 'on_hold')),
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_projects_client ON projects(client_id);
+    CREATE TABLE IF NOT EXISTS project_members (
+      project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+      PRIMARY KEY (project_id, user_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_project_members_user ON project_members(user_id);
   `);
 }
