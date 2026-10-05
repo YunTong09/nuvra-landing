@@ -80,15 +80,16 @@ export function postgresProjects(pool: Pool): ProjectRepository {
         return (await find(db, id))!;
       });
     },
-    async update(id, changes, scope) {
+    async update(id, changes, scope, memberIds) {
       return transaction(async db => {
         // Serialize updates and member replacements before checking the supplied scope.
         const locked = await db.query("SELECT id FROM projects WHERE id = $1 FOR UPDATE", [id]);
         if (!locked.rowCount || !await find(db, id, scope)) return undefined;
         const fields = (["client_id", "name", "description", "status"] as const)
           .filter(field => changes[field] !== undefined);
-        if (fields.length) {
-          await db.query(`UPDATE projects SET ${fields.map((field, index) => `${field} = $${index + 1}`).join(", ")},
+        if (memberIds !== undefined) await replaceMembers(db, id, memberIds);
+        if (fields.length || memberIds !== undefined) {
+          await db.query(`UPDATE projects SET ${fields.map((field, index) => `${field} = $${index + 1}, `).join("")}
             updated_at = now() WHERE id = $${fields.length + 1}`,
             [...fields.map(field => changes[field]), id]);
         }

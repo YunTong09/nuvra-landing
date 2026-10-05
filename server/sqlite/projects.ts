@@ -56,13 +56,14 @@ export function sqliteProjects(db: Database.Database): ProjectRepository {
         return find(id)!;
       }).immediate();
     },
-    async update(id, changes, scope) {
+    async update(id, changes, scope, memberIds) {
       return db.transaction(() => {
         if (!find(id, scope)) return undefined;
         const fields = (["client_id", "name", "description", "status"] as const)
           .filter(field => changes[field] !== undefined);
-        if (fields.length) {
-          db.prepare(`UPDATE projects SET ${fields.map(field => `${field} = ?`).join(", ")},
+        if (memberIds !== undefined) replaceMembers(id, memberIds);
+        if (fields.length || memberIds !== undefined) {
+          db.prepare(`UPDATE projects SET ${fields.map(field => `${field} = ?, `).join("")}
             updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?`)
             .run(...fields.map(field => changes[field]), id);
         }
