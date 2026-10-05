@@ -1,3 +1,4 @@
+import { ProjectsWorkspace } from "../projects/ProjectsWorkspace";
 import { WorkspaceIdentity } from "../account/WorkspaceIdentity";
 import { useEffect, useState } from "react";
 import { AccountOverview } from "../../components/AccountOverview";
@@ -7,6 +8,7 @@ import { currentUser, spacePath, type CurrentUser } from "../account/auth";
 import { RequestsPanel } from "../requests/RequestsPanel";
 
 export function EmployeePage() {
+  const projects = new URLSearchParams(window.location.search).get("section") === "projects";
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [error, setError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
@@ -42,7 +44,6 @@ export function EmployeePage() {
       <a href="/" aria-label="Nuvra home"><Brand /></a>
       {user && <WorkspaceIdentity user={user} />}
       <nav className="account-nav" aria-label="Employee navigation">
-        <a href="/projects">Projects</a>
         <a href="/">Website</a>
         <button onClick={logout} disabled={!user || loggingOut}>Log out</button>
       </nav>
@@ -53,7 +54,11 @@ export function EmployeePage() {
         <h1>Employee workspace</h1>
         {!user ? <p role="status">Checking access…</p> : <>
           <AccountOverview user={user} />
-          <RequestsPanel canManageRequests />
+          <nav className="admin-navigation" aria-label="Employee sections">
+            <a href="/employee" aria-current={!projects ? "page" : undefined}>Requests</a>
+            <a href="/employee?section=projects" aria-current={projects ? "page" : undefined}>Projects</a>
+          </nav>
+          {projects ? <ProjectsWorkspace canManage={false} /> : <RequestsPanel canManageRequests />}
         </>}
         {error && <p className="auth-error" role="alert">{error}</p>}
       </div>

@@ -1,3 +1,4 @@
+import { ProjectsWorkspace } from "../features/projects/ProjectsWorkspace";
 import { RequestsPanel } from "../features/requests/RequestsPanel";
 import { useEffect, useState } from "react";
 import { ToolsAdmin } from "../features/tools/ToolsAdmin";
@@ -53,7 +54,6 @@ export function Admin() {
           </a>
           {user && <WorkspaceIdentity user={user} />}
           <nav className="account-nav" aria-label="Admin navigation">
-            <a href="/projects">Projects</a>
             <a href="/">Website →</a>
             <button type="button" onClick={logout} disabled={loggingOut}>Log out</button>
           </nav>
@@ -65,13 +65,13 @@ export function Admin() {
           <p className="section-label">ADMINISTRATOR WORKSPACE</p>
           <h1>Manage Nuvra</h1>
           <p className="admin-description">
-            Manage your tools, clients, subscriptions, and customer requests.
+            Manage your tools, clients, subscriptions, customer requests, and projects.
           </p>
           <nav className="admin-navigation" aria-label="Admin tables">
             <a
               href="/admin"
               aria-current={
-                section !== "clients" && section !== "subscriptions" && section !== "requests"
+                section !== "clients" && section !== "subscriptions" && section !== "requests" && section !== "projects"
                   ? "page"
                   : undefined
               }
@@ -91,8 +91,11 @@ export function Admin() {
               Subscriptions
             </a>
             <a href="/admin?table=requests" aria-current={section === "requests" ? "page" : undefined}>Requests</a>
+            <a href="/admin?table=projects" aria-current={section === "projects" ? "page" : undefined}>Projects</a>
           </nav>
-          {section === "requests" ? (
+          {section === "projects" ? (
+            <ProjectsWorkspace canManage />
+          ) : section === "requests" ? (
             <RequestsPanel canManageRequests />
           ) : section === "clients" ? (
             <ClientsAdmin />
