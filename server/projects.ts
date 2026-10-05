@@ -35,7 +35,7 @@ export type ProjectInput = Pick<Project, "client_id" | "name"> &
   Partial<Pick<Project, "description" | "status">>;
 export type ProjectChanges = Partial<ProjectInput>;
 
-// Future routes derive this scope from the authenticated user, never request input.
+// Routes derive this scope from the authenticated user, never request input.
 // Admin receives all projects; employee receives only assigned projects.
 export type ProjectScope = { kind: "all" } | { kind: "assigned"; user_id: number };
 
@@ -94,7 +94,13 @@ export function registerProjects(app: Express, repository: ProjectRepository) {
   const router = Router();
   // Existing app-level authentication validates the session and sets this user.
   router.use((_req, res, next) => {
-    if (!res.locals.user) return res.status(401).json({ error: "Please log in." });
+    const user = res.locals.user;
+    if (!user) return res.status(401).json({ error: "Please log in." });
+    if (user.role !== "admin" && user.role !== "employee")
+      return res.status(403).json({ error: "Project access requires a staff account." });
+    const scope: ProjectScope = user.role === "admin"
+      ? { kind: "all" } : { kind: "assigned", user_id: user.id };
+    res.locals.projectScope = scope;
     next();
   });
   router.param("id", (_req, res, next, id: string) => {
@@ -103,31 +109,37 @@ export function registerProjects(app: Express, repository: ProjectRepository) {
     next();
   });
 
-  // Task 11.3 is authentication-only. Task 11.4 will derive authorized scopes.
-  const scope: ProjectScope = { kind: "all" };
   router.get("/", async (_req, res) => {
-    res.json(await repository.list(scope));
+    res.json(await repository.list(res.locals.projectScope));
   });
   router.get("/:id", async (req, res) => {
-    const project = await repository.find(Number(req.params.id), scope);
+    const project = await repository.find(Number(req.params.id), res.locals.projectScope);
     if (!project) return res.status(404).json({ error: "Project not found." });
     res.json(project);
   });
   router.post("/", async (req, res) => {
+    if (res.locals.user.role !== "admin")
+      return res.status(403).json({ error: "Administrator access required." });
     const error = validateProjectBody(req.body, false);
     if (error) return res.status(400).json({ error });
     const project = await repository.create(projectChanges(req.body) as ProjectInput, req.body.member_ids);
     res.status(201).json(project);
   });
   router.patch("/:id", async (req, res) => {
+    // Reject the entire request rather than silently discarding forbidden fields.
+    if (res.locals.user.role !== "admin" && req.body && typeof req.body === "object" &&
+        !Array.isArray(req.body) && Object.keys(req.body).some(key => key !== "status"))
+      return res.status(403).json({ error: "Team members may only update project status." });
     const error = validateProjectBody(req.body, true);
     if (error) return res.status(400).json({ error });
     // The repository saves fields and member replacements in one transaction.
-    const project = await repository.update(Number(req.params.id), projectChanges(req.body), scope, req.body.member_ids);
+    const project = await repository.update(Number(req.params.id), projectChanges(req.body), res.locals.projectScope, req.body.member_ids);
     if (!project) return res.status(404).json({ error: "Project not found." });
     res.json(project);
   });
   router.delete("/:id", async (req, res) => {
+    if (res.locals.user.role !== "admin")
+      return res.status(403).json({ error: "Administrator access required." });
     if (!await repository.delete(Number(req.params.id)))
       return res.status(404).json({ error: "Project not found." });
     res.status(204).end();
