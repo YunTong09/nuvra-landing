@@ -5,6 +5,7 @@ import { currentUser, spacePath, type CurrentUser } from "../account/auth";
 import { apiRequest } from "../../lib/http";
 import { ProjectForm } from "./ProjectForm";
 import { ProjectList } from "./ProjectList";
+import { ProjectDashboard } from "./ProjectDashboard";
 import { useProjects } from "./useProjects";
 import type { Project } from "./types";
 import "./projects.css";
@@ -34,6 +35,7 @@ function ProjectsPanel({ canManage }: { canManage: boolean }) {
 }
 
 export function ProjectsPage() {
+  const dashboard = new URLSearchParams(window.location.search).get("view") === "dashboard";
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [checking, setChecking] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -69,10 +71,14 @@ export function ProjectsPage() {
     </div></header>
     <main id="projects-content" className="section admin-page"><div className="container admin-container projects-page">
       <p className="section-label">PROJECT MANAGEMENT</p>
-      <h1>Projects</h1>
-      <p className="admin-description">{user.role === "admin" ? "Manage client projects and assign your team." : "View your assigned projects and update their progress."}</p>
+      <h1>{dashboard ? "Project dashboard" : "Projects"}</h1>
+      <p className="admin-description">{dashboard ? "An overview of your accessible projects and their progress." : user.role === "admin" ? "Manage client projects and assign your team." : "View your assigned projects and update their progress."}</p>
+      <nav className="admin-navigation" aria-label="Project sections">
+        <a href="/projects?view=dashboard" aria-current={dashboard ? "page" : undefined}>Dashboard</a>
+        <a href="/projects" aria-current={!dashboard ? "page" : undefined}>Projects</a>
+      </nav>
       {error && <p className="auth-error" role="alert">{error}</p>}
-      <ProjectsPanel canManage={user.role === "admin"} />
+      {dashboard ? <ProjectDashboard /> : <ProjectsPanel canManage={user.role === "admin"} />}
     </div></main>
   </div>;
 }

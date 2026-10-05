@@ -11,7 +11,7 @@ import { handlePostgresError } from "./postgres/errors.js";
 import { registerDocuments } from "./documents.js";
 import { postgresDocuments } from "./postgres/documents.js";
 import { blobDocumentStorage, registerDocumentBlobCallback } from "./document-storage.js";
-import { registerProjects } from "./projects.js";
+import { registerProjects } from "./features/projects/routes.js";
 import { postgresProjects } from "./postgres/projects.js";
 
 // Keep the existing import path for server startup, migration, and Vercel.

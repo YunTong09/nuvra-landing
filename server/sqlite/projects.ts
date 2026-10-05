@@ -1,6 +1,6 @@
-import { defaultProjectStatus } from "../projects.js";
+import { defaultProjectStatus } from "../features/projects/routes.js";
 import type Database from "better-sqlite3";
-import type { Project, ProjectDetails, ProjectMemberDetails, ProjectRepository, ProjectScope } from "../projects.js";
+import type { Project, ProjectDetails, ProjectMemberDetails, ProjectRepository, ProjectScope } from "../features/projects/routes.js";
 
 type ProjectRow = Project & { client_name: string; client_email: string };
 const projectSelect = `SELECT projects.*, clients.name AS client_name, clients.email AS client_email

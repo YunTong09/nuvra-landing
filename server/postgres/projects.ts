@@ -1,6 +1,6 @@
-import { defaultProjectStatus } from "../projects.js";
+import { defaultProjectStatus } from "../features/projects/routes.js";
 import type { Pool, PoolClient } from "pg";
-import type { Project, ProjectDetails, ProjectMemberDetails, ProjectRepository, ProjectScope } from "../projects.js";
+import type { Project, ProjectDetails, ProjectMemberDetails, ProjectRepository, ProjectScope } from "../features/projects/routes.js";
 
 type ProjectRow = Omit<Project, "created_at" | "updated_at"> & {
   created_at: Date | string;

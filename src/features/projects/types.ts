@@ -16,3 +16,14 @@ export type Project = {
   updated_at: string;
 };
 export type ProjectInput = Pick<Project, "name" | "description" | "client_id" | "status" | "member_ids">;
+
+export type ProjectDashboardData = {
+  stats: {
+    totalProjects: number;
+    activeProjects: number;
+    completedProjects: number;
+    notStartedProjects: number;
+    onHoldProjects: number;
+  };
+  projects: Project[];
+};

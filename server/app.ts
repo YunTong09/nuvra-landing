@@ -9,7 +9,7 @@ import { registerSqliteAuth } from "./auth-sqlite.js";
 import { registerDocuments } from "./documents.js";
 import { sqliteDocuments } from "./sqlite/documents.js";
 import { localDocumentStorage } from "./document-storage.js";
-import { registerProjects } from "./projects.js";
+import { registerProjects } from "./features/projects/routes.js";
 import { sqliteProjects } from "./sqlite/projects.js";
 
 export function createApp(database: Database.Database) {
