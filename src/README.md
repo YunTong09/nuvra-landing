@@ -8,7 +8,7 @@ This folder contains the React website. Components display pages and send reques
 | `lib/http.ts` | Shared API base URL, JSON/multipart HTTP requests, and session credentials. |
 | `lib/api-response.ts` | Parses API responses, preserves backend validation messages, and shows readable errors when hosting returns plain text or HTML. |
 | `features/account/auth.ts`, `useCurrentUser.ts` | Account types, current-user lookup, and role-based **My space** destination. |
-| `features/employee/EmployeePage.tsx` | Employee workspace, session checks, logout, and shared request management. |
+| `features/employee/EmployeePage.tsx` | Employee workspace, session checks, logout, and shared request/project views. |
 | `features/account/WorkspaceIdentity.tsx`, `workspace.css` | Staff role/name/email header and distinct Admin/Employee dark themes. |
 | `features/*/api.ts`, `features/*/types.ts` | Feature-specific endpoints and record types. |
 | `index.css`, `styles/` | Stylesheet entry point and separate site, admin, and account styles. |
@@ -52,3 +52,13 @@ See the [Clients module](features/clients/README.md) and [Subscriptions module](
 Application API requests use `lib/http.ts`; production document transfers use the Vercel Blob client SDK. Feature API modules describe which endpoint to call; the HTTP helper sends JSON or multipart FormData, includes session credentials, handles empty responses, and reports API errors. Account/session helpers live in `features/account/auth.ts`. Tool, client, and subscription record types live in each feature's `types.ts`.
 
 `index.css` imports `styles/site.css`, `styles/admin.css`, and `styles/account.css` in that order, preserving existing cascade behaviour. Request-specific styles remain in `features/requests/requests.css`.
+
+## Client project management module
+
+Projects are integrated into the existing staff workspaces: Admin selects **Projects** alongside Tools, Clients, Subscriptions, and Requests; Employee selects **Projects** alongside Requests. The shared `features/projects/ProjectsWorkspace.tsx` shows **Overview** or **Manage projects** (Admin) / **My projects** (Employee). It does not add a separate header navigation entry.
+
+`ProjectDashboard.tsx` displays statistics and the accessible project overview returned by `GET /api/projects/dashboard`, without recalculating permissions. `ProjectsPanel.tsx` coordinates CRUD with `useProjects.ts`; `ProjectForm.tsx` reuses one create/edit form with backend client/employee options; `ProjectList.tsx` shows project details and role-aware actions. Loading, error/retry, empty, and save/delete feedback states are included. Backend checks enforce visibility and writes independently.
+
+Admin uses `/admin?table=projects`; employees use `/employee?section=projects`. Overview is the default; `&view=projects` opens project operations. `ProjectsPage.tsx` preserves old `/projects` links by redirecting to the user's workspace, retaining dashboard versus management intent. Existing authentication is reused; no new role system is introduced.
+
+See [Projects module](features/projects/README.md) for file responsibilities. Project-specific styles remain in `features/projects/projects.css`.

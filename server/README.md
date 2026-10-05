@@ -140,3 +140,30 @@ Use `npm run employee:grant -- employee@example.com` after registering the accou
 Document ownership comes from the existing session, not request body/query values. Missing and foreign-owned documents return the same 404 response. Missing authentication returns 401; invalid IDs or missing files return 400; unsupported files return 415; files over 10 MB (10 MiB) return 413. Supported formats are PDF, DOC, DOCX, and UTF-8 TXT. Storage failures return 503 and database failures return 500. Missing local files do not prevent metadata deletion; failed local metadata creation rolls back the saved file.
 
 Local files live in the Git-ignored `uploads/documents/` directory. Production uses private Vercel Blob direct upload so file bytes do not enter the upload Function request. `BLOB_READ_WRITE_TOKEN` stays server-side; `BLOB_UPLOAD_CALLBACK_URL` optionally sets the HTTPS callback address instead of the Vercel deployment domain. The callback is registered before browser-session middleware and is authenticated by its provider signature. Deployment support is implemented; live deployment testing is not required for Task 10 acceptance.
+
+## Task 11 — Client Project Management Platform
+
+| File | Responsibility |
+| --- | --- |
+| `features/projects/routes.ts` | Shared project types, repository interface, canonical statuses, input validation, authenticated CRUD routes, role/scoped access, and dashboard counts. Moved from `server/projects.ts` without changing behaviour. |
+| `sqlite/projects.ts` | SQLite project reads/writes, joined client/member details, assigned-project queries, and transactional membership replacement. |
+| `postgres/projects.ts` | Equivalent PostgreSQL operations, snapshot reads, and row locking for updates/member replacement. |
+| `sqlite/schema.ts`, `postgres/schema.ts` | Create project tables, constraints and indexes; migrate earlier status values to canonical values. |
+| `auth-sqlite.ts`, `auth-postgres.ts` | Reuse existing session authentication and expose the Admin-only employee-options endpoint. |
+| `app.ts`, `postgres.ts` | Register the same project routes with the corresponding repository. Relative imports retain `.js` extensions. |
+
+| Endpoint | Access | Purpose |
+| --- | --- | --- |
+| `GET /api/projects` | Admin or employee | List all projects for Admin; only assigned projects for employees. |
+| `GET /api/projects/dashboard` | Admin or employee | Return scoped `stats` and `projects` from the same repository result. Registered before `/:id`. |
+| `GET /api/projects/:id` | Admin or assigned employee | Return project details, client information, member IDs and member details. |
+| `POST /api/projects` | Admin | Create a project with its client and initial member assignments. |
+| `PATCH /api/projects/:id` | Admin or assigned employee | Admin may edit project fields and assignments; employees may send only `status`. |
+| `DELETE /api/projects/:id` | Admin | Delete a project and cascade deletion of its member assignments. |
+| `GET /api/users/options` | Admin | Return employee `id`, `name`, `email`, and `role` only for the member selector. |
+
+`projects` stores `id`, `client_id`, `name`, `description`, `status`, `created_at`, and `updated_at`. `client_id` references existing clients. `project_members` uses `(project_id, user_id)` as its primary key, references existing projects/users, cascades project deletion, and restricts user deletion while assigned. Client deletion is restricted while projects reference it. Member lists are deduplicated; project changes and membership replacement are transactional.
+
+Statuses are exactly `Not Started`, `In Progress`, `Completed`, and `On Hold`. Creation defaults to `Not Started`; explicit invalid statuses are rejected, and PATCH preserves omitted fields. Both database schemas enforce the same status set. Dashboard `stats` contains `totalProjects`, `activeProjects` (In Progress only), `completedProjects`, `notStartedProjects`, and `onHoldProjects`; `projects` contains the same accessible records used for counting.
+
+Access comes from the authenticated session, never a request-supplied role or user ID. Missing authentication returns 401, prohibited roles/actions return 403, invalid input/relationships return 400, and missing or unassigned project details/status updates return 404. Employee mixed-field PATCH requests are rejected entirely. Database failures use safe API errors without exposing internals. Frontend visibility is not authorization.

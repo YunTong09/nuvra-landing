@@ -24,6 +24,7 @@ A company website with customer accounts, service management, and staff workspac
 | **7 — Customer Request Management** | Customers submit and track requests; staff update their progress. |
 | **8 — Search & Filtering** | Backend-powered search with combined request status and date filters. |
 | **9 — Role-Based Access** | Admin, Employee, and Customer roles with different backend-enforced permissions. |
-| **10 — File & Document Management** | My Space request/document tabs; authenticated upload, list, and delete for owned PDF, DOC, DOCX, and TXT files up to 10 MB. |
+| **10 — File & Document Management** | Customers upload, view, and delete their own documents in My Space. |
+| **11 — Client Project Management Platform** | Admins manage and assign client projects; employees update assigned projects, with progress shown in the dashboard. |
 
 Module details: [Frontend](src/README.md) · [Backend](server/README.md) · [Shared](shared/README.md) · [Tests](tests/README.md).
