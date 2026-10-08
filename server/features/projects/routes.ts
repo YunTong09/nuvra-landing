@@ -105,19 +105,19 @@ function validateProjectBody(body: unknown, partial: boolean): string | undefine
   if (Object.keys(fields).some(key => !writableFields.has(key)))
     return "Only name, description, client_id, status, and member_ids may be supplied.";
   if (partial && Object.keys(fields).length === 0) return "Supply at least one project field to update.";
-  if (!partial || Object.hasOwn(fields, "name")) {
+  if (!partial || Object.prototype.hasOwnProperty.call(fields, "name")) {
     if (typeof fields.name !== "string" || !fields.name.trim() || fields.name.trim().length > 200)
       return "Enter a project name of 1–200 characters.";
   }
-  if (!partial || Object.hasOwn(fields, "client_id")) {
+  if (!partial || Object.prototype.hasOwnProperty.call(fields, "client_id")) {
     if (!validId(fields.client_id)) return "Choose a valid client ID.";
   }
-  if (Object.hasOwn(fields, "description") &&
+  if (Object.prototype.hasOwnProperty.call(fields, "description") &&
       (typeof fields.description !== "string" || fields.description.length > 10000))
     return "Description must be text of at most 10000 characters.";
-  if (Object.hasOwn(fields, "status") && !projectStatuses.includes(fields.status as ProjectStatus))
+  if (Object.prototype.hasOwnProperty.call(fields, "status") && !projectStatuses.includes(fields.status as ProjectStatus))
     return `Status must be one of: ${projectStatuses.join(", ")}.`;
-  if (Object.hasOwn(fields, "member_ids") &&
+  if (Object.prototype.hasOwnProperty.call(fields, "member_ids") &&
       (!Array.isArray(fields.member_ids) || fields.member_ids.length > 1000 || !fields.member_ids.every(validId)))
     return "Member IDs must be an array of up to 1000 valid user IDs.";
   return undefined;
@@ -125,10 +125,10 @@ function validateProjectBody(body: unknown, partial: boolean): string | undefine
 
 function projectChanges(body: Record<string, unknown>): ProjectChanges {
   const changes: ProjectChanges = {};
-  if (Object.hasOwn(body, "name")) changes.name = (body.name as string).trim();
-  if (Object.hasOwn(body, "description")) changes.description = body.description as string;
-  if (Object.hasOwn(body, "client_id")) changes.client_id = body.client_id as number;
-  if (Object.hasOwn(body, "status")) changes.status = body.status as ProjectStatus;
+  if (Object.prototype.hasOwnProperty.call(body, "name")) changes.name = (body.name as string).trim();
+  if (Object.prototype.hasOwnProperty.call(body, "description")) changes.description = body.description as string;
+  if (Object.prototype.hasOwnProperty.call(body, "client_id")) changes.client_id = body.client_id as number;
+  if (Object.prototype.hasOwnProperty.call(body, "status")) changes.status = body.status as ProjectStatus;
   return changes;
 }
 
