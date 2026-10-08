@@ -38,3 +38,24 @@ Nuvra-Task-8*.zip
 Nuvra-Task-9*.zip
 Nuvra-Task-10-*.zip
 Nuvra-Task-11-*.zip
+
+# Environment-specific local configuration
+.env.production
+.env.development
+
+# Local SQLite backups and sidecar files
+*backup*.db
+*.db.bak
+*.db.backup
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal
+
+# Submission archives, including older naming
+Nuvra-Task*-submission.zip
