@@ -35,6 +35,8 @@ export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
         window.history.replaceState(null, "", "/dashboard");
       }
       setUser(found);
+    }).catch(failure => {
+      if (active) setError(failure instanceof Error ? failure.message : "Could not check your account. Please refresh to retry.");
     });
     return () => { active = false; };
   }, [view]);
@@ -66,7 +68,7 @@ export function AccountPage({ view = "dashboard" }: { view?: AccountView }) {
         <p className="section-label">YOUR NUVRA DASHBOARD</p>
         <h1>{title}</h1>
         {view !== "dashboard" && <p><a href={spacePath(user)}>← Back to dashboard</a></p>}
-        {!user ? <p role="status" className="account-loading">Checking your account…</p> : <>
+        {!user ? error ? null : <p role="status" className="account-loading">Checking your account…</p> : <>
           {view === "dashboard" && <>
             <AccountOverview user={user} />
             <style>{`

@@ -22,6 +22,8 @@ export function EmployeePage() {
         return;
       }
       setUser(found);
+    }).catch(failure => {
+      if (active) setError(failure instanceof Error ? failure.message : "Could not check your account. Please refresh to retry.");
     });
     return () => { active = false; };
   }, []);
@@ -52,7 +54,7 @@ export function EmployeePage() {
       <div className="container account-container">
         <p className="section-label">NUVRA EMPLOYEE</p>
         <h1>Employee workspace</h1>
-        {!user ? <p role="status">Checking access…</p> : <>
+        {!user ? error ? null : <p role="status">Checking access…</p> : <>
           <AccountOverview user={user} />
           <nav className="admin-navigation" aria-label="Employee sections">
             <a href="/employee" aria-current={!projects ? "page" : undefined}>Requests</a>

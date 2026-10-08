@@ -12,6 +12,7 @@ import { currentUser, type CurrentUser } from "../features/account/auth";
 export function Admin() {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [access, setAccess] = useState<"checking" | "allowed" | "denied">("checking");
+  const [accessError, setAccessError] = useState("");
   const [logoutError, setLogoutError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
   useEffect(() => {
@@ -21,6 +22,8 @@ export function Admin() {
       if (!user) { window.location.replace("/login"); return; }
       setUser(user);
       setAccess(user.role === "admin" ? "allowed" : "denied");
+    }).catch(failure => {
+      if (active) setAccessError(failure instanceof Error ? failure.message : "Could not check your account. Please refresh to retry.");
     });
     return () => { active = false; };
   }, []);
@@ -35,6 +38,7 @@ export function Admin() {
       setLoggingOut(false);
     }
   }
+  if (accessError) return <main className="section"><div className="container"><p role="alert">{accessError}</p></div></main>;
   if (access === "checking") return <main className="section"><div className="container"><p role="status">Checking access…</p></div></main>;
   if (access === "denied") return <main className="section"><div className="container">
     <h1>Administrator access required</h1><p>Your account cannot manage company records.</p>
