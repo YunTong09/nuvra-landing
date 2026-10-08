@@ -1,4 +1,4 @@
-import { defaultProjectStatus } from "../features/projects/routes.js";
+import { defaultProjectStatus, ProjectMemberValidationError } from "../features/projects/routes.js";
 import type Database from "better-sqlite3";
 import type { Project, ProjectDetails, ProjectMemberDetails, ProjectRepository, ProjectScope } from "../features/projects/routes.js";
 
@@ -31,9 +31,14 @@ export function sqliteProjects(db: Database.Database): ProjectRepository {
     return row ? details(row) : undefined;
   }
   function replaceMembers(id: number, userIds: number[]) {
+    const uniqueIds = [...new Set(userIds)];
+    const employee = db.prepare("SELECT id FROM users WHERE id = ? AND role = 'employee'");
+    for (const userId of uniqueIds) {
+      if (!employee.get(userId)) throw new ProjectMemberValidationError();
+    }
     db.prepare("DELETE FROM project_members WHERE project_id = ?").run(id);
     const insert = db.prepare("INSERT INTO project_members (project_id, user_id) VALUES (?, ?)");
-    for (const userId of new Set(userIds)) insert.run(id, userId);
+    for (const userId of uniqueIds) insert.run(id, userId);
   }
 
   return {

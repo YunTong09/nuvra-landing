@@ -7,6 +7,12 @@ export const defaultProjectStatus: ProjectStatus = "Not Started";
 export const activeProjectStatus: ProjectStatus = "In Progress";
 export const completedProjectStatus: ProjectStatus = "Completed";
 
+export class ProjectMemberValidationError extends Error {
+  constructor() {
+    super("Project members must be existing employees.");
+  }
+}
+
 export interface Project {
   id: number;
   client_id: number;
@@ -186,6 +192,8 @@ export function registerProjects(app: Express, repository: ProjectRepository) {
   });
 
   const handleError: ErrorRequestHandler = (error, _req, res, _next) => {
+    if (error instanceof ProjectMemberValidationError)
+      return res.status(400).json({ error: error.message });
     if (error?.code === "SQLITE_CONSTRAINT_FOREIGNKEY" || error?.code === "23503")
       return res.status(400).json({ error: "The client or one of the assigned users does not exist." });
     if (["SQLITE_CONSTRAINT_CHECK", "SQLITE_CONSTRAINT_NOTNULL", "23514", "23502", "22P02", "22003"].includes(error?.code))

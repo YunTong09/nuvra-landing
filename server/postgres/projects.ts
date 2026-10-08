@@ -1,4 +1,4 @@
-import { defaultProjectStatus } from "../features/projects/routes.js";
+import { defaultProjectStatus, ProjectMemberValidationError } from "../features/projects/routes.js";
 import type { Pool, PoolClient } from "pg";
 import type { Project, ProjectDetails, ProjectMemberDetails, ProjectRepository, ProjectScope } from "../features/projects/routes.js";
 
@@ -53,8 +53,16 @@ export function postgresProjects(pool: Pool): ProjectRepository {
     return result.rows[0] ? details(db, result.rows[0]) : undefined;
   }
   async function replaceMembers(db: PoolClient, id: number, userIds: number[]) {
+    const uniqueIds = [...new Set(userIds)];
+    if (uniqueIds.length) {
+      // Hold role rows stable until the assignment transaction completes.
+      const users = await db.query<{ id: number; role: string }>(
+        "SELECT id, role FROM users WHERE id = ANY($1::int[]) ORDER BY id FOR SHARE", [uniqueIds]);
+      if (users.rows.length !== uniqueIds.length || users.rows.some(user => user.role !== "employee"))
+        throw new ProjectMemberValidationError();
+    }
     await db.query("DELETE FROM project_members WHERE project_id = $1", [id]);
-    for (const userId of new Set(userIds)) {
+    for (const userId of uniqueIds) {
       await db.query("INSERT INTO project_members (project_id, user_id) VALUES ($1, $2)", [id, userId]);
     }
   }
