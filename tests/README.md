@@ -6,10 +6,12 @@ These tests exercise backend behaviour with temporary or in-memory data. They ve
 | --- | --- |
 | `deployment-imports.test.ts` | Compiles the API/backend/shared modules to JavaScript and starts the API in plain Node without TypeScript files or loaders, catching deployment import failures. Does not connect to Neon. |
 | `api-response.test.ts` | Plain-text/HTML server errors, JSON validation messages, successful responses, and empty logout responses. |
+| `admin-search.test.ts` | Tools, Clients, and Subscriptions search results, query validation, literal special characters, access restrictions, and PostgreSQL search parameter binding. |
 | `auth.test.ts` | Registration, login, sessions, logout, profile updates, validation, login limits, and admin access with SQLite. |
 | `postgres-access.test.ts` | Session/profile checks and employee/admin request permissions and management restrictions through a stub PostgreSQL connection. |
 | `employee-access.test.ts` | Employee permissions, blocked role escalation, immediate role changes, and SQLite migration preserving accounts, sessions, requests, and ID sequence. |
 | `requests.test.ts` | Submission validation, server-assigned ownership/status, customer isolation, administrator status updates, request details, cross-origin rejection, and persistence. |
+| `request-filters.test.ts` | Request filter validation and PostgreSQL parameter binding/ownership conditions through a stub adapter. |
 | `tools.test.ts` | Public tool reads, admin tool writes, validation, persistence, and inquiries. |
 | `relationships.test.ts` | Client and subscription operations and database constraints. |
 | `vercel-routing.test.ts` | Original API path handling through the Vercel rewrite. |
