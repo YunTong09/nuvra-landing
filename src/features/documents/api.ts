@@ -25,8 +25,8 @@ export async function uploadDocument(file: File, sessionUserId: number): Promise
   if (error) throw new Error(error);
   const extension = file.name.split(".").pop()!.toLowerCase();
   const mime = types[extension];
-  // Override only when the backend storage differs from the usual Vite/Vercel setup.
-  const mode = import.meta.env.VITE_DOCUMENT_UPLOAD_MODE || (import.meta.env.DEV ? "local" : "blob");
+  // Vite resolves the backend-specific mode for both development and built previews.
+  const mode = import.meta.env.VITE_DOCUMENT_UPLOAD_MODE;
   if (mode === "local") {
     const body = new FormData();
     body.append("file", new File([file], file.name, { type: mime }));
