@@ -28,6 +28,11 @@ Project statuses are **Not Started**, **In Progress**, **Completed**, and **On H
 - **Hosting:** Vercel
 - **Checks:** TypeScript, Oxlint, Node test runner with tsx
 
+## Design Approach
+
+- **Frontend:** Feature-based components keep the interface easy to maintain, while distinct workspace background colours help Admins, Employees, and Customers identify their signed-in role.
+- **Backend:** Shared feature logic enforces authentication and role permissions, with separate SQLite and PostgreSQL repositories providing consistent data access.
+
 ## Setup & Installation
 
 Use **Node.js 24 LTS** and npm.
@@ -126,3 +131,4 @@ Final manual checks include My Space tabs, project forms and assignments, dashbo
 | **9 — Role-Based Access** | Admin, Employee, and Customer roles with different backend-enforced permissions. |
 | **10 — File & Document Management** | Customers upload, view, and delete their own documents in My Space. |
 | **11 — Client Project Management Platform** | Admins manage and assign client projects; employees update assigned projects, with progress shown in the dashboard. |
+| **12 — Final Full-Stack Integration** | Connects customer and staff workflows across authentication, requests, documents, clients, projects, and dashboards, with final setup and submission documentation. |
